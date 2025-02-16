@@ -1,0 +1,97 @@
+package template
+
+import (
+	"github.com/anybote/litehouse/internal/config"
+	"strconv"
+)
+
+templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int) {
+	@page() {
+		@navWithHeader("/")
+		<main class="max-w-7xl mx-auto p-6 grid grid-cols-79 gap-y-3 place-items-center">
+			@ImagePage(0, gallery, numRowsPerPage)
+		</main>
+		<div id="footer"></div>
+	}
+}
+
+templ ImagePage(index int, gallery *config.GalleryConfig, numRowsPerPage int) {
+	{{ pageStart := min(index*numRowsPerPage, len(gallery.Rows)) }}
+	{{ pageEnd := min(pageStart+numRowsPerPage, len(gallery.Rows)) }}
+	{{ isFinalPage := pageEnd == len(gallery.Rows) }}
+	for i, row := range gallery.Rows[pageStart:pageEnd] {
+		{{ isFinalRow := i == numRowsPerPage-1 }}
+		if row.Layout == config.LayoutSection {
+			@sectionHeader(row.Title, index, isFinalRow, isFinalPage)
+		} else {
+			@imageRow(row, index, isFinalRow, isFinalPage)
+		}
+	}
+	if isFinalPage {
+		@footer()
+	} else {
+		<div id={ "target-div-" + strconv.Itoa(index) }></div>
+	}
+}
+
+templ sectionHeader(title string, pageIndex int, isFinalRow, isFinalPage bool) {
+	<div class="col-span-full w-full flex flex-col gap-1 mt-12">
+		<p
+			class="self-start -ml-4 text-ef-light-gray"
+			if isFinalRow && !isFinalPage {
+				hx-get={ "/img/" + strconv.Itoa(pageIndex+1) }
+				hx-trigger="revealed"
+				hx-swap="outerHTML"
+				hx-target={ "#target-div-" + strconv.Itoa(pageIndex) }
+			}
+		>
+			{ title }
+		</p>
+		<hr class="w-full border-t-2 border-ef-light-gray"/>
+	</div>
+}
+
+templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool) {
+	{{ gridConfigs := getGridConfigs(row.Layout) }}
+	for i, image := range row.Images {
+		{{ isLastImage := i == len(row.Images)-1 }}
+		<div class={ "col-start-" + gridConfigs[i].Start + " col-span-" + gridConfigs[i].Span + " bg-ef-light-bg-dim" }>
+			<img
+				class="transition duration-300 opacity-0"
+				onload="this.style.opacity=1"
+				src={ "/assets/images/" + image.File }
+				alt={ image.Alt }
+				if isFinalRow && isLastImage && !isFinalPage {
+					hx-get={ "/img/" + strconv.Itoa(pageIndex+1) }
+					hx-trigger="revealed"
+					hx-swap="outerHTML"
+					hx-target={ "#target-div-" + strconv.Itoa(pageIndex) }
+				}
+			/>
+		</div>
+	}
+}
+
+type GridConfig struct {
+	Start string
+	Span  string
+}
+
+func getGridConfigs(layout config.Layout) []GridConfig {
+	// different layouts support different numbers of photos
+	// for now we just assume that there are the correct number of photos provided per row
+	switch layout {
+	case config.LayoutFull:
+		return []GridConfig{{"1", "79"}}
+	case config.LayoutHalf:
+		return []GridConfig{{"1", "39"}, {"41", "39"}}
+	case config.LayoutSplit:
+		return []GridConfig{{"1", "54"}, {"56", "24"}}
+	case config.LayoutFlipSplit:
+		return []GridConfig{{"1", "24"}, {"26", "54"}}
+	case config.LayoutCenter:
+		return []GridConfig{{"21", "39"}}
+	default:
+		return []GridConfig{}
+	}
+}

@@ -1,0 +1,106 @@
+package template
+
+templ page() {
+	<!DOCTYPE html>
+	<html lang="en" class="bg-ef-light-bg-light">
+		<head>
+			<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta name="theme-color" content="#fdf6e3"/>
+			<title>a distant cloud</title>
+			// favicon configuration
+			<link rel="icon" type="image/png" href="/static/favicon/favicon-48x48.png" sizes="48x48"/>
+			<link rel="icon" type="image/svg+xml" href="/static/favicon/favicon.svg"/>
+			<link rel="shortcut icon" href="/static/favicon/favicon.ico"/>
+			<link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png"/>
+			<meta name="apple-mobile-web-app-title" content="a distant cloud"/>
+			<link rel="manifest" href="/static/favicon/site.webmanifest"/>
+			<link rel="stylesheet" href="/static/css/style.min.css"/>
+			// htmx
+			<script src="/static/script/htmx.min.js"></script>
+			// alpinejs
+			<script defer src="/static/script/alpinejs-intersect.min.js"></script>
+			<script defer src="/static/script/alpinejs.min.js"></script>
+		</head>
+		<body class="min-h-screen flex flex-col overflow-y-scroll">
+			{ children... }
+		</body>
+	</html>
+}
+
+func navLinkClasses(isActive bool) map[string]bool {
+	linkBaseClasses := "underline transition-colors duration-300"
+	activeLinkClasses := "text-ef-light-purple"
+	inactiveLinkClasses := "hover:text-ef-light-purple"
+
+	return map[string]bool{
+		linkBaseClasses:     true,
+		activeLinkClasses:   isActive,
+		inactiveLinkClasses: !isActive,
+	}
+}
+
+templ nav(currentPath string) {
+	<nav
+		x-data="{ atTop: true }"
+		class="fixed top-0 left-0 right-0 bg-ef-light-bg-dim z-50 transition duration-300"
+		:class="atTop ? 'drop-shadow-none' : 'drop-shadow-md'"
+		@scroll.window="atTop = (window.pageYOffset < 10) ? true : false"
+	>
+		<div class="max-w-7xl mx-auto px-6 py-3">
+			<ul class="flex items-center w-full gap-6 text-ef-light-fg">
+				<li class={ navLinkClasses(currentPath == "/") }><a href="/">go home</a></li>
+				<li class={ navLinkClasses(currentPath == "/about") }><a href="/about">about</a></li>
+				<li
+					class="ml-auto font-title text-lg text-ef-light-purple transition-opacity duration-300"
+					:class="visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
+					x-cloak
+				>
+					<a href="/">irretrievably lost</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+	<div class="mt-32"></div>
+}
+
+templ navWithHeader(currentPath string) {
+	<div x-data="{ visible: false }">
+		@nav(currentPath)
+		<header
+			class="max-w-7xl mx-auto px-6 flex justify-center"
+			x-intersect:leave="visible = true"
+			x-intersect:enter="visible = false"
+		>
+			<h1 class="text-7xl font-light font-title">
+				irretrievably lost
+			</h1>
+		</header>
+	</div>
+}
+
+templ footer() {
+	<div class="mb-auto"></div>
+	<footer id="footer" hx-swap-oob="true" class="w-full bg-ef-light-bg-dim overflow-x-hidden">
+		<div class="max-w-7xl mx-auto p-6 flex items-center justify-between">
+			<ul class="flex flex-col text-ef-light-fg min-w-fit font-mono">
+				<li class="relative pl-6">
+					<span class="absolute left-0">©&#xFE0E;</span>
+					2024 Anthony Fenzl
+				</li>
+				<li class="relative pl-6">
+					<span class="absolute left-0">⛕&#xFE0E;</span>
+					<a class="inline underline" href="https://github.com/anybote/litehouse">source on github</a>
+				</li>
+				<li class="relative pl-6">
+					<span class="absolute left-0">⚙&#xFE0E;</span>
+					using go, templ, htmx, alpinejs, tailwindcss
+				</li>
+				<li class="relative pl-6">
+					<span class="absolute left-0">✎&#xFE0E;</span>
+					title Grenze, body IBM Plex Sans
+				</li>
+			</ul>
+			<img src="/static/images/large_clouds.png" alt="peaceful clouds" class="ml-auto size-1/2 translate-x-48"/>
+		</div>
+	</footer>
+}

@@ -1,0 +1,265 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-title: "Grenze", ui-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif;
+  --font-mono: "Operator Mono", ui-monospace;
+
+  /* Light theme colors */
+  --color-ef-light-bg: #f8f5e4;
+  --color-ef-light-bg-dim: #f2efdf;
+  --color-ef-light-bg-light: #fffbef;
+  --color-ef-light-fg: #5c6a72;
+
+  --color-ef-light-red: #f85552;
+  --color-ef-light-orange: #f57d26;
+  --color-ef-light-yellow: #dfa000;
+  --color-ef-light-green: #8da101;
+  --color-ef-light-blue: #3a94c5;
+  --color-ef-light-aqua: #35a77c;
+  --color-ef-light-purple: #df69ba;
+
+  --color-ef-light-gray-light: #a6b0a0;
+  --color-ef-light-gray: #939f91;
+  --color-ef-light-gray-dim: #829181;
+
+  --color-ef-light-bg-red: #ffe7de;
+  --color-ef-light-bg-yellow: #fef2d5;
+  --color-ef-light-bg-green: #f3f5d9;
+  --color-ef-light-bg-blue: #ecf5ed;
+
+  /* Dark theme colors */
+  --color-ef-dark-bg: #2e383c;
+  --color-ef-dark-bg-dim: #1e2326;
+  --color-ef-dark-bg-light: #272e33;
+  --color-ef-dark-fg: #d3c6aa;
+
+  --color-ef-dark-red: #e67e80;
+  --color-ef-dark-orange: #e69875;
+  --color-ef-dark-yellow: #dbbc7f;
+  --color-ef-dark-green: #a7c080;
+  --color-ef-dark-blue: #7fbbb3;
+  --color-ef-dark-aqua: #83c092;
+  --color-ef-dark-purple: #d699b6;
+
+  --color-ef-dark-gray-light: #7a8478;
+  --color-ef-dark-gray: #859289;
+  --color-ef-dark-gray-dim: #9da9a0;
+
+  --color-ef-dark-bg-red: #4c3743;
+  --color-ef-dark-bg-yellow: #45443c;
+  --color-ef-dark-bg-green: #3c4841;
+  --color-ef-dark-bg-blue: #384b55;
+}
+
+@layer base, utilities;
+
+@layer utilities {
+
+  /* Grid Template Columns */
+  .grid-cols-79 {
+    grid-template-columns: repeat(79, minmax(0, 1fr));
+  }
+
+  /* Grid Column Spans */
+  .col-span-79 {
+    grid-column: span 79 / span 79;
+  }
+
+  .col-span-39 {
+    grid-column: span 39 / span 39;
+  }
+
+  .col-span-54 {
+    grid-column: span 54 / span 54;
+  }
+
+  .col-span-24 {
+    grid-column: span 24 / span 24;
+  }
+
+  /* Grid Column Start Positions */
+  .col-start-0 {
+    grid-column-start: 0;
+  }
+
+  .col-start-21 {
+    grid-column-start: 21;
+  }
+
+  .col-start-26 {
+    grid-column-start: 26;
+  }
+
+  .col-start-41 {
+    grid-column-start: 41;
+  }
+
+  .col-start-56 {
+    grid-column-start: 56;
+  }
+}
+
+@layer base {
+
+  /* Alpine.js x-cloak utility */
+  [x-cloak] {
+    display: none !important;
+  }
+
+  /* IBM Plex Sans */
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-display: swap;
+    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-Bold.ttf) format("truetype");
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-display: swap;
+    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-BoldItalic.ttf) format("truetype");
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-display: swap;
+    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-Medium.ttf) format("truetype");
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-display: swap;
+    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-MediumItalic.ttf) format("truetype");
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-display: swap;
+    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-Regular.ttf) format("truetype");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-display: swap;
+    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-Italic.ttf) format("truetype");
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-display: swap;
+    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-Light.ttf) format("truetype");
+    font-weight: 300;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-display: swap;
+    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-LightItalic.ttf) format("truetype");
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  /* Grenze */
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/ttf/Grenze-Regular.ttf) format("truetype");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/ttf/Grenze-Light.ttf) format("truetype");
+    font-weight: 300;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/ttf/Grenze-Thin.ttf) format("truetype");
+    font-weight: 200;
+    font-style: normal;
+  }
+
+  /* Operator Mono */
+  @font-face {
+    font-family: "Operator Mono";
+    font-display: swap;
+    src: url(/static/fonts/Operator_Mono/OperatorMono-Bold.otf) format("opentype");
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Operator Mono";
+    font-display: swap;
+    src: url(/static/fonts/Operator_Mono/OperatorMono-BoldItalic.otf) format("opentype");
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Operator Mono";
+    font-display: swap;
+    src: url(/static/fonts/Operator_Mono/OperatorMono-Medium.otf) format("opentype");
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Operator Mono";
+    font-display: swap;
+    src: url(/static/fonts/Operator_Mono/OperatorMono-MediumItalic.otf) format("opentype");
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Operator Mono";
+    font-display: swap;
+    src: url(/static/fonts/Operator_Mono/OperatorMono-Book.otf) format("opentype");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Operator Mono";
+    font-display: swap;
+    src: url(/static/fonts/Operator_Mono/OperatorMono-BookItalic.otf) format("opentype");
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Operator Mono";
+    font-display: swap;
+    src: url(/static/fonts/Operator_Mono/OperatorMono-Light.otf) format("opentype");
+    font-weight: 300;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Operator Mono";
+    font-display: swap;
+    src: url(/static/fonts/Operator_Mono/OperatorMono-LightItalic.otf) format("opentype");
+    font-weight: 300;
+    font-style: italic;
+  }
+}
