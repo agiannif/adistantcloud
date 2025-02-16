@@ -4,7 +4,7 @@
 
 = a distant cloud
 
-This is the code that runs my personal website, adistant.cloud[adistant.cloud].
+This is the code that runs my personal website, https://adistant.cloud[adistant.cloud].
 
 The website currently features some of my photography. I have plans to add other galleries in the future, as well as
 blog posts about projects I'm working on.
