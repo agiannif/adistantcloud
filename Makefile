@@ -7,26 +7,26 @@ gen:
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.min.css --minify
 
 build: gen
-	go build ./cmd/litehouse
+	go build ./cmd/adistantcloud
 
 build-release: gen
-	go build -ldflags "-s -w" ./cmd/litehouse/
+	go build -ldflags "-s -w" ./cmd/adistantcloud/
 
 build-release-amd: gen
-	env GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" ./cmd/litehouse/
+	env GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" ./cmd/adistantcloud/
 
 run: gen
-	go run ./cmd/litehouse
+	go run ./cmd/adistantcloud
 
 clean:
 	go clean
-	rm -f litehouse
+	rm -f adistantcloud
 	rm -f web/template/*_templ.go
 	rm -f web/static/css/style.min.css
 	rm -f bundle.tgz
 
 bundle: clean build-release-amd
-	tar -czf bundle.tgz assets/ configs/ litehouse web/static/
+	tar -czf bundle.tgz assets/ configs/ adistantcloud web/static/
 
 help:
 	@echo "Usage: make [target]"

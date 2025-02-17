@@ -1,4 +1,4 @@
-module github.com/anybote/litehouse
+module github.com/agiannif/adistantcloud
 
 go 1.23.2
 

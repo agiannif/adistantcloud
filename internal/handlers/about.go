@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/anybote/litehouse/web/template"
+	"github.com/agiannif/adistantcloud/web/template"
 )
 
 func AboutHandler(w http.ResponseWriter, r *http.Request) {

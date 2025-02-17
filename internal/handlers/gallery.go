@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/anybote/litehouse/internal/config"
-	"github.com/anybote/litehouse/web/template"
+	"github.com/agiannif/adistantcloud/internal/config"
+	"github.com/agiannif/adistantcloud/web/template"
 )
 
 type Gallery struct {

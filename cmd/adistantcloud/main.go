@@ -6,8 +6,8 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/anybote/litehouse/internal/config"
-	"github.com/anybote/litehouse/internal/handlers"
+	"github.com/agiannif/adistantcloud/internal/config"
+	"github.com/agiannif/adistantcloud/internal/handlers"
 )
 
 func main() {
