@@ -3,8 +3,8 @@
 @theme {
   /* Fonts */
   --font-title: "Grenze", ui-serif;
-  --font-sans: "IBM Plex Sans", ui-sans-serif;
-  --font-mono: "Operator Mono", ui-monospace;
+  --font-sans: "Atkinson Hyperlegible Next", ui-sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono", ui-monospace;
 
   /* Light theme colors */
   --color-ef-light-bg: #f8f5e4;
@@ -108,68 +108,229 @@
     display: none !important;
   }
 
-  /* IBM Plex Sans */
+  /* Atkinson Hyperlegible Next */
   @font-face {
-    font-family: "IBM Plex Sans";
+    font-family: "Atkinson Hyperlegible Next";
     font-display: swap;
-    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-Bold.ttf) format("truetype");
-    font-weight: 700;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraLight.woff2) format("woff2");
+    font-weight: 200;
     font-style: normal;
   }
 
   @font-face {
-    font-family: "IBM Plex Sans";
+    font-family: "Atkinson Hyperlegible Next";
     font-display: swap;
-    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-BoldItalic.ttf) format("truetype");
-    font-weight: 700;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraLightItalic.woff2) format("woff2");
+    font-weight: 200;
     font-style: italic;
   }
 
   @font-face {
-    font-family: "IBM Plex Sans";
+    font-family: "Atkinson Hyperlegible Next";
     font-display: swap;
-    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-Medium.ttf) format("truetype");
-    font-weight: 500;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "IBM Plex Sans";
-    font-display: swap;
-    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-MediumItalic.ttf) format("truetype");
-    font-weight: 500;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "IBM Plex Sans";
-    font-display: swap;
-    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-Regular.ttf) format("truetype");
-    font-weight: 400;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "IBM Plex Sans";
-    font-display: swap;
-    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-Italic.ttf) format("truetype");
-    font-weight: 400;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "IBM Plex Sans";
-    font-display: swap;
-    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-Light.ttf) format("truetype");
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Light.woff2) format("woff2");
     font-weight: 300;
     font-style: normal;
   }
 
   @font-face {
-    font-family: "IBM Plex Sans";
+    font-family: "Atkinson Hyperlegible Next";
     font-display: swap;
-    src: url(/static/fonts/IBM_Plex_Sans/IBMPlexSans-LightItalic.ttf) format("truetype");
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-LightItalic.woff2) format("woff2");
     font-weight: 300;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Regular.woff2) format("woff2");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-RegularItalic.woff2) format("woff2");
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Medium.woff2) format("woff2");
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-MediumItalic.woff2) format("woff2");
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-SemiBold.woff2) format("woff2");
+    font-weight: 600;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-SemiBoldItalic.woff2) format("woff2");
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Bold.woff2) format("woff2");
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-BoldItalic.woff2) format("woff2");
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraBold.woff2) format("woff2");
+    font-weight: 800;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraBoldItalic.woff2) format("woff2");
+    font-weight: 800;
+    font-style: italic;
+  }
+
+  /* Atkinson Hyperlegible Mono */
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraLight.woff2) format("woff2");
+    font-weight: 200;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraLightItalic.woff2) format("woff2");
+    font-weight: 200;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Light.woff2) format("woff2");
+    font-weight: 300;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-LightItalic.woff2) format("woff2");
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Regular.woff2) format("woff2");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-RegularItalic.woff2) format("woff2");
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Medium.woff2) format("woff2");
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-MediumItalic.woff2) format("woff2");
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-SemiBold.woff2) format("woff2");
+    font-weight: 600;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-SemiBoldItalic.woff2) format("woff2");
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Bold.woff2) format("woff2");
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-BoldItalic.woff2) format("woff2");
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraBold.woff2) format("woff2");
+    font-weight: 800;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-display: swap;
+    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraBoldItalic.woff2) format("woff2");
+    font-weight: 800;
     font-style: italic;
   }
 
@@ -177,89 +338,144 @@
   @font-face {
     font-family: "Grenze";
     font-display: swap;
-    src: url(/static/fonts/Grenze/ttf/Grenze-Regular.ttf) format("truetype");
-    font-weight: 400;
+    src: url(/static/fonts/Grenze/Grenze-Thin.woff2) format("woff2");
+    font-weight: 100;
     font-style: normal;
   }
 
   @font-face {
     font-family: "Grenze";
     font-display: swap;
-    src: url(/static/fonts/Grenze/ttf/Grenze-Light.ttf) format("truetype");
-    font-weight: 300;
-    font-style: normal;
+    src: url(/static/fonts/Grenze/Grenze-ThinItalic.woff2) format("woff2");
+    font-weight: 100;
+    font-style: italic;
   }
 
   @font-face {
     font-family: "Grenze";
     font-display: swap;
-    src: url(/static/fonts/Grenze/ttf/Grenze-Thin.ttf) format("truetype");
+    src: url(/static/fonts/Grenze/Grenze-ExtraLight.woff2) format("woff2");
     font-weight: 200;
     font-style: normal;
   }
 
-  /* Operator Mono */
   @font-face {
-    font-family: "Operator Mono";
+    font-family: "Grenze";
     font-display: swap;
-    src: url(/static/fonts/Operator_Mono/OperatorMono-Bold.otf) format("opentype");
-    font-weight: 700;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Operator Mono";
-    font-display: swap;
-    src: url(/static/fonts/Operator_Mono/OperatorMono-BoldItalic.otf) format("opentype");
-    font-weight: 700;
+    src: url(/static/fonts/Grenze/Grenze-ExtraLightItalic.woff2) format("woff2");
+    font-weight: 200;
     font-style: italic;
   }
 
   @font-face {
-    font-family: "Operator Mono";
+    font-family: "Grenze";
     font-display: swap;
-    src: url(/static/fonts/Operator_Mono/OperatorMono-Medium.otf) format("opentype");
-    font-weight: 500;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Operator Mono";
-    font-display: swap;
-    src: url(/static/fonts/Operator_Mono/OperatorMono-MediumItalic.otf) format("opentype");
-    font-weight: 500;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Operator Mono";
-    font-display: swap;
-    src: url(/static/fonts/Operator_Mono/OperatorMono-Book.otf) format("opentype");
-    font-weight: 400;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Operator Mono";
-    font-display: swap;
-    src: url(/static/fonts/Operator_Mono/OperatorMono-BookItalic.otf) format("opentype");
-    font-weight: 400;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Operator Mono";
-    font-display: swap;
-    src: url(/static/fonts/Operator_Mono/OperatorMono-Light.otf) format("opentype");
+    src: url(/static/fonts/Grenze/Grenze-Light.woff2) format("woff2");
     font-weight: 300;
     font-style: normal;
   }
 
   @font-face {
-    font-family: "Operator Mono";
+    font-family: "Grenze";
     font-display: swap;
-    src: url(/static/fonts/Operator_Mono/OperatorMono-LightItalic.otf) format("opentype");
+    src: url(/static/fonts/Grenze/Grenze-LightItalic.woff2) format("woff2");
     font-weight: 300;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-Regular.woff2) format("woff2");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-Italic.woff2) format("woff2");
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-Medium.woff2) format("woff2");
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-MediumItalic.woff2) format("woff2");
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-SemiBold.woff2) format("woff2");
+    font-weight: 600;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-SemiBoldItalic.woff2) format("woff2");
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-Bold.woff2) format("woff2");
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-BoldItalic.woff2) format("woff2");
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-ExtraBold.woff2) format("woff2");
+    font-weight: 800;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-ExtraBoldItalic.woff2) format("woff2");
+    font-weight: 800;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-Black.woff2) format("woff2");
+    font-weight: 900;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Grenze";
+    font-display: swap;
+    src: url(/static/fonts/Grenze/Grenze-BlackItalic.woff2) format("woff2");
+    font-weight: 900;
     font-style: italic;
   }
 }

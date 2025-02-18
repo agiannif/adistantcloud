@@ -37,7 +37,7 @@ templ ImagePage(index int, gallery *config.GalleryConfig, numRowsPerPage int) {
 templ sectionHeader(title string, pageIndex int, isFinalRow, isFinalPage bool) {
 	<div class="col-span-full w-full flex flex-col gap-1 mt-12">
 		<p
-			class="self-start -ml-4 text-ef-light-gray"
+			class="self-start -ml-4 text-ef-light-gray text-lg"
 			if isFinalRow && !isFinalPage {
 				hx-get={ "/img/" + strconv.Itoa(pageIndex+1) }
 				hx-trigger="revealed"
