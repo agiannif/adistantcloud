@@ -8,7 +8,26 @@ import (
 templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int) {
 	@page() {
 		@navWithHeader("/")
-		<main class="max-w-7xl mx-auto p-6 grid grid-cols-79 gap-y-3 place-items-center">
+		<main
+			class="max-w-7xl mx-auto p-6 grid grid-cols-79 gap-y-3 place-items-center"
+			x-data="{
+                isFullscreen: false,
+                currentImage: null,
+                openFullscreen(img) {
+                    this.currentImage = {
+                        src: img.src,
+                        alt: img.alt
+                    };
+                    this.isFullscreen = true;
+                    document.body.style.overflow = 'hidden';
+                },
+                closeFullscreen() {
+                    this.isFullscreen = false;
+                    document.body.style.overflow = '';
+                }
+            }"
+			@keyup.escape.window="closeFullscreen()"
+		>
 			@ImagePage(0, gallery, numRowsPerPage)
 		</main>
 		<div id="footer"></div>
@@ -57,8 +76,9 @@ templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool
 		{{ isLastImage := i == len(row.Images)-1 }}
 		<div class={ "col-start-" + gridConfigs[i].Start + " col-span-" + gridConfigs[i].Span + " bg-ef-light-bg-dim" }>
 			<img
-				class="transition duration-300 opacity-0"
-				onload="this.style.opacity=1"
+				class="transition duration-300 opacity-0 cursor-pointer"
+				@click="openFullscreen($el)"
+				@load="$el.style.opacity=1"
 				src={ "/assets/images/" + image.File }
 				alt={ image.Alt }
 				if isFinalRow && isLastImage && !isFinalPage {
@@ -68,6 +88,26 @@ templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool
 					hx-target={ "#target-div-" + strconv.Itoa(pageIndex) }
 				}
 			/>
+			// Fullscreen overlay
+			<template x-teleport="body">
+				<div
+					x-show="isFullscreen"
+					x-transition:enter="transition ease-out duration-300"
+					x-transition:enter-start="opacity-0"
+					x-transition:enter-end="opacity-100"
+					x-transition:leave="transition ease-in duration-200"
+					x-transition:leave-start="opacity-100"
+					x-transition:leave-end="opacity-0"
+					class="fixed inset-0 bg-black bg-opacity-90 z-50 cursor-pointer"
+					@click="closeFullscreen()"
+				>
+					<img
+						:src="currentImage?.src"
+						:alt="currentImage?.alt"
+						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain"
+					/>
+				</div>
+			</template>
 		</div>
 	}
 }
