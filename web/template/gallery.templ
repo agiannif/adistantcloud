@@ -37,7 +37,7 @@ templ ImagePage(index int, gallery *config.GalleryConfig, numRowsPerPage int) {
 templ sectionHeader(title string, pageIndex int, isFinalRow, isFinalPage bool) {
 	<div class="col-span-full w-full flex flex-col gap-1 mt-12">
 		<p
-			class="self-start -ml-4 text-ef-light-gray"
+			class="self-start -ml-4 text-ef-light-gray text-lg"
 			if isFinalRow && !isFinalPage {
 				hx-get={ "/img/" + strconv.Itoa(pageIndex+1) }
 				hx-trigger="revealed"
@@ -55,11 +55,29 @@ templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool
 	{{ gridConfigs := getGridConfigs(row.Layout) }}
 	for i, image := range row.Images {
 		{{ isLastImage := i == len(row.Images)-1 }}
-		<div class={ "col-start-" + gridConfigs[i].Start + " col-span-" + gridConfigs[i].Span + " bg-ef-light-bg-dim" }>
+		{{ imagePath := "/assets/images/" + image.File }}
+		<div
+			x-data="{
+			  isFullscreen: false,
+				openFullscreen() {
+				  this.isFullscreen = true;
+					document.body.style.overflow = 'hidden';
+					document.body.style.height = '100%';
+				},
+				closeFullscreen() {
+				  this.isFullscreen = false;
+					document.body.style.height = '';
+					setTimeout(() => { document.body.style.overflow = ''; }, 100);
+				}
+			}"
+			@keyup.escape.window="closeFullscreen()"
+			class={ "col-start-" + gridConfigs[i].Start + " col-span-" + gridConfigs[i].Span + " bg-ef-light-bg-dim" }
+		>
 			<img
-				class="transition duration-300 opacity-0"
-				onload="this.style.opacity=1"
-				src={ "/assets/images/" + image.File }
+				@click="openFullscreen()"
+				@load="$el.style.opacity=1"
+				class="transition duration-300 opacity-0 cursor-pointer"
+				src={ imagePath }
 				alt={ image.Alt }
 				if isFinalRow && isLastImage && !isFinalPage {
 					hx-get={ "/img/" + strconv.Itoa(pageIndex+1) }
@@ -68,6 +86,23 @@ templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool
 					hx-target={ "#target-div-" + strconv.Itoa(pageIndex) }
 				}
 			/>
+			// Fullscreen overlay
+			<template x-teleport="body">
+				<div
+					x-show="isFullscreen"
+					@click="closeFullscreen()"
+					class="fixed inset-0 z-50 cursor-pointer bg-white/[.98] touch-none"
+				>
+					<img
+						x-show="isFullscreen"
+						x-transition:enter.duration.500ms
+						x-transition:leave.duration.400ms
+						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain touch-none"
+						src={ imagePath }
+						alt={ image.Alt }
+					/>
+				</div>
+			</template>
 		</div>
 	}
 }

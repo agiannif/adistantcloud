@@ -28,6 +28,9 @@ clean:
 bundle: clean build-release-amd
 	tar -czf bundle.tgz assets/ configs/ adistantcloud web/static/
 
+bundle-no-assets: clean build-release-amd
+	tar -czf bundle.tgz configs/ adistantcloud web/static/
+
 help:
 	@echo "Usage: make [target]"
 	@echo "Targets:"
@@ -39,3 +42,4 @@ help:
 	@echo "  run               : run the project"
 	@echo "  clean             : remove build objects and caches"
 	@echo "  bundle            : create a tgz archive for easy shipping"
+	@echo "  bundle-no-assets  : create a tgz archive without assets"
