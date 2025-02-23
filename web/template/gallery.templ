@@ -9,7 +9,7 @@ templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int) {
 	@page() {
 		@navWithHeader("/")
 		<main class="max-w-7xl mx-auto p-6 grid grid-cols-79 gap-y-3 place-items-center">
-			@imagePage(0, gallery, numRowsPerPage)
+			@ImagePage(0, gallery, numRowsPerPage)
 			@goToTopButton()
 		</main>
 		<div id="footer"></div>
@@ -26,7 +26,7 @@ templ goToTopButton() {
 			x-cloak
 			x-transition
 			@click="window.scrollTo({top: 0, behavior: 'smooth'})"
-			class="fixed bottom-8 right-8 p-3 rounded-full bg-ef-light-gray-dim hover:bg-ef-light-gray active:bg-ef-light-gray-light text-ef-light-bg-light focus:outline-none focus:ring-2 focus:ring-ef-light-blue/75 transition-all cursor-pointer"
+			class="fixed bottom-8 right-8 z-50 p-3 rounded-full bg-ef-light-gray-dim hover:bg-ef-light-gray active:bg-ef-light-gray-light text-ef-light-bg-light focus:outline-none focus:ring-2 focus:ring-ef-light-blue/75 transition-all cursor-pointer"
 		>
 			<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
@@ -35,7 +35,7 @@ templ goToTopButton() {
 	</div>
 }
 
-templ imagePage(index int, gallery *config.GalleryConfig, numRowsPerPage int) {
+templ ImagePage(index int, gallery *config.GalleryConfig, numRowsPerPage int) {
 	{{ pageStart := min(index*numRowsPerPage, len(gallery.Rows)) }}
 	{{ pageEnd := min(pageStart+numRowsPerPage, len(gallery.Rows)) }}
 	{{ isFinalPage := pageEnd == len(gallery.Rows) }}

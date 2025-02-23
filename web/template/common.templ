@@ -42,20 +42,20 @@ func navLinkClasses(isActive bool) map[string]bool {
 templ nav(currentPath string) {
 	<nav
 		x-data="{ atTop: true }"
+		@scroll.window="atTop = (window.pageYOffset < 10) ? true : false"
 		class="fixed top-0 left-0 right-0 bg-ef-light-bg-dim z-50 transition duration-300"
 		:class="atTop ? 'drop-shadow-none' : 'drop-shadow-md'"
-		@scroll.window="atTop = (window.pageYOffset < 10) ? true : false"
 	>
 		<div class="max-w-7xl mx-auto px-6 py-3">
 			<ul class="flex items-center w-full gap-6 text-ef-light-fg text-lg">
-				<li class={ navLinkClasses(currentPath == "/") }><a href="/">go home</a></li>
-				<li class={ navLinkClasses(currentPath == "/about") }><a href="/about">about</a></li>
+				<li><a class={ navLinkClasses(currentPath == "/") } href="/">go home</a></li>
+				<li><a class={ navLinkClasses(currentPath == "/about") } href="/about">about</a></li>
 				<li
-					class="ml-auto font-title text-lg text-ef-light-purple transition-opacity duration-300"
-					:class="visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
 					x-cloak
+					class="ml-auto transition-opacity duration-300"
+					:class="visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
 				>
-					<a href="/">irretrievably lost</a>
+					<a class="font-title text-lg text-ef-light-purple" href="/">irretrievably lost</a>
 				</li>
 			</ul>
 		</div>
@@ -67,9 +67,9 @@ templ navWithHeader(currentPath string) {
 	<div x-data="{ visible: false }">
 		@nav(currentPath)
 		<header
-			class="max-w-7xl mx-auto px-6 flex justify-center"
 			x-intersect:leave="visible = true"
 			x-intersect:enter="visible = false"
+			class="max-w-7xl mx-auto px-6 flex justify-center"
 		>
 			<h1 class="text-7xl font-light font-title">
 				irretrievably lost
