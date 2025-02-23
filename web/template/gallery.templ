@@ -91,7 +91,7 @@ templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool
 				}
 			}"
 			@keyup.escape.window="closeFullscreen()"
-			class={ "col-start-" + gridConfigs[i].Start + " col-span-" + gridConfigs[i].Span + " bg-ef-light-bg-dim" }
+			class={ "md:col-span-" + gridConfigs[i].Span + " md:col-start-" + gridConfigs[i].Start + " col-span-79 col-start-1 bg-ef-light-bg-dim" }
 		>
 			<img
 				@click="openFullscreen()"
