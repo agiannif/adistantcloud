@@ -8,12 +8,45 @@ import (
 templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int) {
 	@page() {
 		@navWithHeader("/")
-		<main class="max-w-7xl mx-auto p-6 grid grid-cols-79 gap-y-3 place-items-center">
-			@ImagePage(0, gallery, numRowsPerPage)
-			@goToTopButton()
-		</main>
+		<div class="flex justify-center">
+			<div class="grid grid-cols-[256px_minmax(0,_1fr)_256px]">
+				<div>
+					@galleryNav(gallery)
+				</div>
+				<main class="max-w-7xl p-6 grid grid-cols-79 gap-y-3 place-items-center">
+					@ImagePage(0, gallery, numRowsPerPage)
+					@goToTopButton()
+				</main>
+			</div>
+		</div>
 		<div id="footer"></div>
 	}
+}
+
+func galleryNavClasses(isActive bool) map[string]bool {
+	linkBaseClasses := "text-ef-light-fg transition-colors duration-300"
+	activeLinkClasses := "-ml-4 text-ef-light-purple"
+	inactiveLinkClasses := "hover:text-ef-light-purple"
+
+	return map[string]bool{
+		linkBaseClasses:     true,
+		activeLinkClasses:   isActive,
+		inactiveLinkClasses: !isActive,
+	}
+}
+
+templ galleryNav(gallery *config.GalleryConfig) {
+	<nav class="fixed top-1/4 px-6 py-3">
+		<ul class="space-y-2">
+			for _, row := range gallery.Rows {
+				if row.Layout == config.LayoutSection {
+					<li>
+						<a href="" class={ galleryNavClasses(false) }>{ "-- " + row.ShortTitle }</a>
+					</li>
+				}
+			}
+		</ul>
+	</nav>
 }
 
 templ goToTopButton() {

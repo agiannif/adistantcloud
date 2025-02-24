@@ -26,6 +26,7 @@ type ImageConfig struct {
 type RowConfig struct {
 	Layout      Layout
 	Title       string
+	ShortTitle  string `toml:"short_title"`
 	Description string
 	Images      []ImageConfig
 }
