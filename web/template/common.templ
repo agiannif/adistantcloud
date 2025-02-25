@@ -28,7 +28,7 @@ templ page() {
 }
 
 func navLinkClasses(isActive bool) map[string]bool {
-	linkBaseClasses := "underline transition-colors duration-300"
+	linkBaseClasses := "underline transition-colors duration-300 block"
 	activeLinkClasses := "text-ef-light-purple"
 	inactiveLinkClasses := "hover:text-ef-light-purple"
 
@@ -55,7 +55,7 @@ templ nav(currentPath string) {
 					class="ml-auto transition-opacity duration-300"
 					:class="visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
 				>
-					<a class="font-title text-lg text-ef-light-purple" href="/">irretrievably lost</a>
+					<a class="font-title text-lg text-ef-light-purple block" href="/">irretrievably lost</a>
 				</li>
 			</ul>
 		</div>
