@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int) {
+templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int, section int) {
 	@page() {
 		@navWithHeader("/")
 		<div class="flex justify-center">
@@ -14,12 +14,12 @@ templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int) {
 					@galleryNav(gallery)
 				</div>
 				<main class="max-w-7xl p-6 grid grid-cols-79 gap-y-3 place-items-center">
-					@ImagePage(0, gallery, numRowsPerPage)
+					@ImagePage(gallery, numRowsPerPage, getIndexOfSection(gallery, section))
 					@goToTopButton()
 				</main>
 			</div>
 		</div>
-		<div id="footer"></div>
+		@footer()
 	}
 }
 
@@ -38,15 +38,31 @@ func galleryNavClasses(isActive bool) map[string]bool {
 templ galleryNav(gallery *config.GalleryConfig) {
 	<nav class="fixed top-1/4 px-6 py-3">
 		<ul class="space-y-2">
+			{{ currentSection := 0 }}
 			for _, row := range gallery.Rows {
 				if row.Layout == config.LayoutSection {
 					<li>
-						<a href="" class={ galleryNavClasses(false) }>{ "-- " + row.ShortTitle }</a>
+						<a href={ templ.URL("/gallery/" + strconv.Itoa(currentSection)) } class={ galleryNavClasses(false) }>{ "-- " + row.ShortTitle }</a>
 					</li>
+					{{ currentSection++ }}
 				}
 			}
 		</ul>
 	</nav>
+}
+
+func getIndexOfSection(gallery *config.GalleryConfig, section int) int {
+	curSection := -1
+	for i, row := range gallery.Rows {
+		if row.Layout == config.LayoutSection {
+			curSection++
+		}
+		if curSection == section {
+			return i
+		}
+	}
+
+	return max(len(gallery.Rows)-1, 0)
 }
 
 templ goToTopButton() {
@@ -68,46 +84,40 @@ templ goToTopButton() {
 	</div>
 }
 
-templ ImagePage(index int, gallery *config.GalleryConfig, numRowsPerPage int) {
-	{{ pageStart := min(index*numRowsPerPage, len(gallery.Rows)) }}
+templ ImagePage(gallery *config.GalleryConfig, numRowsPerPage, index int) {
+	{{ pageStart := index }}
 	{{ pageEnd := min(pageStart+numRowsPerPage, len(gallery.Rows)) }}
 	{{ isFinalPage := pageEnd == len(gallery.Rows) }}
 	for i, row := range gallery.Rows[pageStart:pageEnd] {
 		{{ isFinalRow := i == numRowsPerPage-1 }}
 		if row.Layout == config.LayoutSection {
-			@sectionHeader(row.Title, index, isFinalRow, isFinalPage)
+			@sectionHeader(row.Title)
 		} else {
-			@imageRow(row, index, isFinalRow, isFinalPage)
+			@imageRow(row)
 		}
-	}
-	if isFinalPage {
-		@footer()
-	} else {
-		<div id={ "target-div-" + strconv.Itoa(index) }></div>
+		if isFinalRow && !isFinalPage {
+			<p
+				class="text-ef-light-gray"
+				hx-get={ "/img/" + strconv.Itoa(pageEnd) }
+				hx-trigger="revealed"
+				hx-swap="outerHTML"
+			>...</p>
+		}
 	}
 }
 
-templ sectionHeader(title string, pageIndex int, isFinalRow, isFinalPage bool) {
+templ sectionHeader(title string) {
 	<div class="col-span-full w-full flex flex-col gap-1 mt-12">
-		<p
-			class="self-start -ml-4 text-ef-light-gray text-lg"
-			if isFinalRow && !isFinalPage {
-				hx-get={ "/img/" + strconv.Itoa(pageIndex+1) }
-				hx-trigger="revealed"
-				hx-swap="outerHTML"
-				hx-target={ "#target-div-" + strconv.Itoa(pageIndex) }
-			}
-		>
+		<p class="self-start -ml-4 text-ef-light-gray text-lg">
 			{ title }
 		</p>
 		<hr class="w-full border-t-2 border-ef-light-gray"/>
 	</div>
 }
 
-templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool) {
+templ imageRow(row config.RowConfig) {
 	{{ gridConfigs := getGridConfigs(row.Layout) }}
 	for i, image := range row.Images {
-		{{ isLastImage := i == len(row.Images)-1 }}
 		{{ imagePath := "/assets/images/" + image.File }}
 		<div
 			x-data="{
@@ -132,12 +142,6 @@ templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool
 				class="transition duration-300 opacity-0 cursor-pointer"
 				src={ imagePath }
 				alt={ image.Alt }
-				if isFinalRow && isLastImage && !isFinalPage {
-					hx-get={ "/img/" + strconv.Itoa(pageIndex+1) }
-					hx-trigger="revealed"
-					hx-swap="outerHTML"
-					hx-target={ "#target-div-" + strconv.Itoa(pageIndex) }
-				}
 			/>
 			// Fullscreen overlay
 			<template x-teleport="body">
