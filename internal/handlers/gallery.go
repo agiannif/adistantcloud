@@ -35,5 +35,5 @@ func (g *Gallery) ImagePageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	template.ImagePage(&g.GalleryConfig, g.NumRowsPerPage, index).Render(r.Context(), w)
+	template.GalleryPage(&g.GalleryConfig, g.NumRowsPerPage, index).Render(r.Context(), w)
 }

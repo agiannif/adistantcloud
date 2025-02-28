@@ -14,7 +14,7 @@ templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int, section int) {
 					@galleryNav(gallery)
 				</div>
 				<main class="max-w-7xl p-6 grid grid-cols-79 gap-y-3 place-items-center">
-					@ImagePage(gallery, numRowsPerPage, getIndexOfSection(gallery, section))
+					@GalleryPage(gallery, numRowsPerPage, getIndexOfSection(gallery, section))
 					@goToTopButton()
 				</main>
 			</div>
@@ -84,25 +84,27 @@ templ goToTopButton() {
 	</div>
 }
 
-templ ImagePage(gallery *config.GalleryConfig, numRowsPerPage, index int) {
-	{{ pageStart := index }}
+templ GalleryPage(gallery *config.GalleryConfig, numRowsPerPage, pageStart int) {
 	{{ pageEnd := min(pageStart+numRowsPerPage, len(gallery.Rows)) }}
 	{{ isFinalPage := pageEnd == len(gallery.Rows) }}
-	for i, row := range gallery.Rows[pageStart:pageEnd] {
-		{{ isFinalRow := i == numRowsPerPage-1 }}
-		if row.Layout == config.LayoutSection {
-			@sectionHeader(row.Title)
-		} else {
-			@imageRow(row)
-		}
-		if isFinalRow && !isFinalPage {
-			<p
-				class="text-ef-light-gray"
-				hx-get={ "/img/" + strconv.Itoa(pageEnd) }
-				hx-trigger="revealed"
-				hx-swap="outerHTML"
-			>...</p>
-		}
+	for _, row := range gallery.Rows[pageStart:pageEnd] {
+		@galleryRow(row)
+	}
+	if !isFinalPage {
+		<p
+			class="text-ef-light-gray"
+			hx-get={ "/img/" + strconv.Itoa(pageEnd) }
+			hx-trigger="revealed"
+			hx-swap="outerHTML"
+		>...</p>
+	}
+}
+
+templ galleryRow(row config.RowConfig) {
+	if row.Layout == config.LayoutSection {
+		@sectionHeader(row.Title)
+	} else {
+		@imageRow(row)
 	}
 }
 
