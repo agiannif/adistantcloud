@@ -109,12 +109,6 @@ templ imageRow(row config.RowConfig) {
 				  this.isFullscreen = false;
 					document.body.style.height = '';
 					setTimeout(() => { document.body.style.overflow = ''; }, 100);
-				},
-				lazyLoadImage() {
-					if (this.$el.getAttribute('data-src')) {
-						this.$el.src = this.$el.getAttribute('data-src');
-						this.$el.removeAttribute('data-src');
-					}
 				}
 			}"
 			@keyup.escape.window="closeFullscreen()"
@@ -123,9 +117,9 @@ templ imageRow(row config.RowConfig) {
 			<img
 				@click="openFullscreen()"
 				@load="$el.style.opacity=1"
-				x-intersect.once="lazyLoadImage()"
 				class="transition duration-300 opacity-0 cursor-pointer"
-				data-src={ imagePath }
+				loading="lazy"
+				src={ imagePath }
 				alt={ image.Alt }
 			/>
 			// Fullscreen overlay
@@ -139,9 +133,9 @@ templ imageRow(row config.RowConfig) {
 						x-show="isFullscreen"
 						x-transition:enter.duration.500ms
 						x-transition:leave.duration.400ms
-						x-intersect.once="lazyLoadImage()"
 						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain touch-none"
-						data-src={ imagePath }
+						loading="lazy"
+						src={ imagePath }
 						alt={ image.Alt }
 					/>
 				</div>
