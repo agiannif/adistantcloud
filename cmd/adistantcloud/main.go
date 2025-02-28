@@ -30,8 +30,7 @@ func main() {
 	// create routes
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", gallery.GalleryHandler)
-	mux.HandleFunc("GET /gallery/{section}", gallery.GalleryHandler)
-	mux.HandleFunc("GET /img/{index}", gallery.ImagePageHandler)
+	mux.HandleFunc("GET /gallery", gallery.GalleryHandler)
 	mux.HandleFunc("GET /about", handlers.AboutHandler)
 
 	// serve static files

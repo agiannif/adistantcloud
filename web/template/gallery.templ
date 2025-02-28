@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int, section int) {
+templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int) {
 	@page() {
 		@navWithHeader("/")
 		<div class="flex justify-center">
@@ -14,7 +14,7 @@ templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int, section int) {
 					@galleryNav(gallery)
 				</div>
 				<main class="max-w-7xl p-6 grid grid-cols-79 gap-y-3 place-items-center">
-					@GalleryPage(gallery, numRowsPerPage, getIndexOfSection(gallery, section))
+					@GalleryPage(gallery, numRowsPerPage)
 					@goToTopButton()
 				</main>
 			</div>
@@ -51,20 +51,6 @@ templ galleryNav(gallery *config.GalleryConfig) {
 	</nav>
 }
 
-func getIndexOfSection(gallery *config.GalleryConfig, section int) int {
-	curSection := -1
-	for i, row := range gallery.Rows {
-		if row.Layout == config.LayoutSection {
-			curSection++
-		}
-		if curSection == section {
-			return i
-		}
-	}
-
-	return max(len(gallery.Rows)-1, 0)
-}
-
 templ goToTopButton() {
 	<div
 		x-data="{ atTop: true }"
@@ -84,19 +70,9 @@ templ goToTopButton() {
 	</div>
 }
 
-templ GalleryPage(gallery *config.GalleryConfig, numRowsPerPage, pageStart int) {
-	{{ pageEnd := min(pageStart+numRowsPerPage, len(gallery.Rows)) }}
-	{{ isFinalPage := pageEnd == len(gallery.Rows) }}
-	for _, row := range gallery.Rows[pageStart:pageEnd] {
+templ GalleryPage(gallery *config.GalleryConfig, numRowsPerPage int) {
+	for _, row := range gallery.Rows {
 		@galleryRow(row)
-	}
-	if !isFinalPage {
-		<p
-			class="text-ef-light-gray"
-			hx-get={ "/img/" + strconv.Itoa(pageEnd) }
-			hx-trigger="revealed"
-			hx-swap="outerHTML"
-		>...</p>
 	}
 }
 
@@ -133,6 +109,12 @@ templ imageRow(row config.RowConfig) {
 				  this.isFullscreen = false;
 					document.body.style.height = '';
 					setTimeout(() => { document.body.style.overflow = ''; }, 100);
+				},
+				lazyLoadImage() {
+					if (this.$el.getAttribute('data-src')) {
+						this.$el.src = this.$el.getAttribute('data-src');
+						this.$el.removeAttribute('data-src');
+					}
 				}
 			}"
 			@keyup.escape.window="closeFullscreen()"
@@ -141,8 +123,9 @@ templ imageRow(row config.RowConfig) {
 			<img
 				@click="openFullscreen()"
 				@load="$el.style.opacity=1"
+				x-intersect.once="lazyLoadImage()"
 				class="transition duration-300 opacity-0 cursor-pointer"
-				src={ imagePath }
+				data-src={ imagePath }
 				alt={ image.Alt }
 			/>
 			// Fullscreen overlay
@@ -156,8 +139,9 @@ templ imageRow(row config.RowConfig) {
 						x-show="isFullscreen"
 						x-transition:enter.duration.500ms
 						x-transition:leave.duration.400ms
+						x-intersect.once="lazyLoadImage()"
 						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain touch-none"
-						src={ imagePath }
+						data-src={ imagePath }
 						alt={ image.Alt }
 					/>
 				</div>
