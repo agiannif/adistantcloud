@@ -23,8 +23,7 @@ func main() {
 	}
 
 	gallery := handlers.Gallery{
-		GalleryConfig:  *galleryConfig,
-		NumRowsPerPage: serverConfig.NumRowsPerGalleryPage,
+		GalleryConfig: *galleryConfig,
 	}
 
 	// create routes

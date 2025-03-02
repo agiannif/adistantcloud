@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int) {
+templ Gallery(gallery *config.GalleryConfig) {
 	@page() {
 		@navWithHeader("/")
 		<div class="flex justify-center">
@@ -14,7 +14,13 @@ templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int) {
 					@galleryNav(gallery)
 				</div>
 				<main class="max-w-7xl p-6 grid grid-cols-79 gap-y-3 place-items-center">
-					@GalleryPage(gallery, numRowsPerPage)
+					{{ currentSection := 0 }}
+					for _, row := range gallery.Rows {
+						@galleryRow(row, currentSection)
+						if row.Layout == config.LayoutSection {
+							{{ currentSection++ }}
+						}
+					}
 					@goToTopButton()
 				</main>
 			</div>
@@ -42,7 +48,7 @@ templ galleryNav(gallery *config.GalleryConfig) {
 			for _, row := range gallery.Rows {
 				if row.Layout == config.LayoutSection {
 					<li>
-						<a href={ templ.URL("/gallery/" + strconv.Itoa(currentSection)) } class={ galleryNavClasses(false) }>{ "-- " + row.ShortTitle }</a>
+						<a href={ templ.URL("#section_" + strconv.Itoa(currentSection)) } class={ galleryNavClasses(false) }>{ "-- " + row.ShortTitle }</a>
 					</li>
 					{{ currentSection++ }}
 				}
@@ -70,25 +76,19 @@ templ goToTopButton() {
 	</div>
 }
 
-templ GalleryPage(gallery *config.GalleryConfig, numRowsPerPage int) {
-	for _, row := range gallery.Rows {
-		@galleryRow(row)
-	}
-}
-
-templ galleryRow(row config.RowConfig) {
+templ galleryRow(row config.RowConfig, currentSection int) {
 	if row.Layout == config.LayoutSection {
-		@sectionHeader(row.Title)
+		@sectionHeader(row.Title, currentSection)
 	} else {
 		@imageRow(row)
 	}
 }
 
-templ sectionHeader(title string) {
+templ sectionHeader(title string, currentSection int) {
 	<div class="col-span-full w-full flex flex-col gap-1 mt-12">
-		<p class="self-start -ml-4 text-ef-light-gray text-lg">
+		<h2 id={ "section_" + strconv.Itoa(currentSection) } class="self-start -ml-4 text-ef-light-gray text-lg scroll-m-16">
 			{ title }
-		</p>
+		</h2>
 		<hr class="w-full border-t-2 border-ef-light-gray"/>
 	</div>
 }

@@ -8,10 +8,9 @@ import (
 )
 
 type Gallery struct {
-	GalleryConfig  config.GalleryConfig
-	NumRowsPerPage int
+	GalleryConfig config.GalleryConfig
 }
 
 func (g *Gallery) GalleryHandler(w http.ResponseWriter, r *http.Request) {
-	template.Gallery(&g.GalleryConfig, g.NumRowsPerPage).Render(r.Context(), w)
+	template.Gallery(&g.GalleryConfig).Render(r.Context(), w)
 }
