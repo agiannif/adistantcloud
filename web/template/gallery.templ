@@ -9,7 +9,10 @@ templ Gallery(gallery *config.GalleryConfig) {
 	@page() {
 		@navWithHeader("/")
 		<div class="flex justify-center">
-			<div class="grid grid-cols-[256px_minmax(0,_1fr)_256px]">
+			<div
+				class="grid grid-cols-[256px_minmax(0,_1fr)_256px]"
+				x-data="{ activeSection: 0 }"
+			>
 				<div>
 					@galleryNav(gallery)
 				</div>
@@ -48,7 +51,13 @@ templ galleryNav(gallery *config.GalleryConfig) {
 			for _, row := range gallery.Rows {
 				if row.Layout == config.LayoutSection {
 					<li>
-						<a href={ templ.URL("#section_" + strconv.Itoa(currentSection)) } class={ galleryNavClasses(false) }>{ "-- " + row.ShortTitle }</a>
+						<a
+							href={ templ.URL("#section" + strconv.Itoa(currentSection)) }
+							class={ galleryNavClasses(false) }
+							:class={ "{ '-ml-4 text-ef-light-purple': activeSection === " + strconv.Itoa(currentSection) + ", 'hover:text-ef-light-purple': activeSection !== " + strconv.Itoa(currentSection) + " }" }
+						>
+							{ "-- " + row.ShortTitle }
+						</a>
 					</li>
 					{{ currentSection++ }}
 				}
@@ -80,20 +89,24 @@ templ galleryRow(row config.RowConfig, currentSection int) {
 	if row.Layout == config.LayoutSection {
 		@sectionHeader(row.Title, currentSection)
 	} else {
-		@imageRow(row)
+		@imageRow(row, currentSection < 2)
 	}
 }
 
 templ sectionHeader(title string, currentSection int) {
 	<div class="col-span-full w-full flex flex-col gap-1 mt-12">
-		<h2 id={ "section_" + strconv.Itoa(currentSection) } class="self-start -ml-4 text-ef-light-gray text-lg scroll-m-16">
+		<h2
+			id={ "section" + strconv.Itoa(currentSection) }
+			class="self-start -ml-4 text-ef-light-gray text-lg scroll-m-16"
+			x-intersect={ "activeSection = " + strconv.Itoa(currentSection) }
+		>
 			{ title }
 		</h2>
 		<hr class="w-full border-t-2 border-ef-light-gray"/>
 	</div>
 }
 
-templ imageRow(row config.RowConfig) {
+templ imageRow(row config.RowConfig, highPriority bool) {
 	{{ gridConfigs := getGridConfigs(row.Layout) }}
 	for i, image := range row.Images {
 		{{ imagePath := "/assets/images/" + image.File }}
@@ -118,9 +131,14 @@ templ imageRow(row config.RowConfig) {
 				@click="openFullscreen()"
 				@load="$el.style.opacity=1"
 				class="transition duration-300 opacity-0 cursor-pointer"
+				if highPriority {
+					fetchpriority="high"
+				}
 				loading="lazy"
 				src={ imagePath }
 				alt={ image.Alt }
+				width="1232"
+				height="820"
 			/>
 			// Fullscreen overlay
 			<template x-teleport="body">
@@ -137,6 +155,8 @@ templ imageRow(row config.RowConfig) {
 						loading="lazy"
 						src={ imagePath }
 						alt={ image.Alt }
+						width="1232"
+						height="820"
 					/>
 				</div>
 			</template>
