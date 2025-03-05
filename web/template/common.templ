@@ -40,7 +40,7 @@ func navLinkClasses(isActive bool) map[string]bool {
 templ nav(currentPath string) {
 	<nav
 		x-data="{ atTop: true }"
-		@scroll.window="atTop = (window.pageYOffset < 10) ? true : false"
+		@scroll.window.throttle.50ms="atTop = (window.pageYOffset < 10) ? true : false"
 		class="fixed top-0 left-0 right-0 bg-ef-light-bg-dim z-50 transition duration-300"
 		:class="atTop ? 'drop-shadow-none' : 'drop-shadow-md'"
 	>

@@ -11,7 +11,27 @@ templ Gallery(gallery *config.GalleryConfig) {
 		<div class="flex justify-center">
 			<div
 				class="grid grid-cols-[256px_minmax(0,_1fr)_256px]"
-				x-data="{ activeSection: 0 }"
+				x-data="{
+					activeSection: null,
+					sections: document.querySelectorAll('h2[id^=section]'),
+					updateGalleryNav() {
+						// calculate distance of all gallery sections
+            let midScreen = window.innerHeight / 2
+            let sectionsByDistanceFromTop = {}
+            this.sections.forEach(section => {
+                sectionsByDistanceFromTop[section.getBoundingClientRect().top - midScreen] = section
+            })
+
+            // find the section that is the closest and above the midpoint
+            let closestNegativeTop = Math.max(...Object.keys(sectionsByDistanceFromTop).filter(top => top < 0))
+            if (closestNegativeTop >= 0 || [Infinity, NaN, -Infinity].includes(closestNegativeTop)) {
+						  return this.activeSection = null
+						}
+            this.activeSection = sectionsByDistanceFromTop[closestNegativeTop].id
+					}
+				}"
+				x-init="updateGalleryNav()"
+				@scroll.window.throttle.50ms="updateGalleryNav()"
 			>
 				<div>
 					@galleryNav(gallery)
@@ -32,18 +52,6 @@ templ Gallery(gallery *config.GalleryConfig) {
 	}
 }
 
-func galleryNavClasses(isActive bool) map[string]bool {
-	linkBaseClasses := "text-ef-light-fg transition-colors duration-300 block"
-	activeLinkClasses := "-ml-4 text-ef-light-purple"
-	inactiveLinkClasses := "hover:text-ef-light-purple"
-
-	return map[string]bool{
-		linkBaseClasses:     true,
-		activeLinkClasses:   isActive,
-		inactiveLinkClasses: !isActive,
-	}
-}
-
 templ galleryNav(gallery *config.GalleryConfig) {
 	<nav class="fixed top-1/4 px-6 py-3">
 		<ul class="space-y-2">
@@ -53,8 +61,8 @@ templ galleryNav(gallery *config.GalleryConfig) {
 					<li>
 						<a
 							href={ templ.URL("#section" + strconv.Itoa(currentSection)) }
-							class={ galleryNavClasses(false) }
-							:class={ "{ '-ml-4 text-ef-light-purple': activeSection === " + strconv.Itoa(currentSection) + ", 'hover:text-ef-light-purple': activeSection !== " + strconv.Itoa(currentSection) + " }" }
+							class="text-ef-light-fg transition-colors duration-300"
+							:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' ? '-ml-4 text-ef-light-purple' : 'hover:text-ef-light-purple'" }
 						>
 							{ "-- " + row.ShortTitle }
 						</a>
@@ -98,7 +106,6 @@ templ sectionHeader(title string, currentSection int) {
 		<h2
 			id={ "section" + strconv.Itoa(currentSection) }
 			class="self-start -ml-4 text-ef-light-gray text-lg scroll-m-16"
-			x-intersect={ "activeSection = " + strconv.Itoa(currentSection) }
 		>
 			{ title }
 		</h2>
