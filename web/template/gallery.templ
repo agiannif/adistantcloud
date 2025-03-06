@@ -10,7 +10,7 @@ templ Gallery(gallery *config.GalleryConfig) {
 		@navWithHeader("/")
 		<div class="flex justify-center">
 			<div
-				class="grid grid-cols-[256px_minmax(0,_1fr)_256px]"
+				class="grid grid-cols-[256px_minmax(0,_1fr)_256px] gap-8"
 				x-data="{
 					activeSection: null,
 					sections: document.querySelectorAll('h2[id^=section]'),
@@ -53,7 +53,7 @@ templ Gallery(gallery *config.GalleryConfig) {
 }
 
 templ galleryNav(gallery *config.GalleryConfig) {
-	<nav class="fixed top-1/4 px-6 py-3">
+	<nav class="fixed top-1/4 px-6 py-3 border-2 border-ef-light-bg-light border-l-ef-light-gray rounded-lg">
 		<ul class="space-y-2">
 			{{ currentSection := 0 }}
 			for _, row := range gallery.Rows {
@@ -61,8 +61,8 @@ templ galleryNav(gallery *config.GalleryConfig) {
 					<li>
 						<a
 							href={ templ.URL("#section" + strconv.Itoa(currentSection)) }
-							class="text-ef-light-fg transition-colors duration-300"
-							:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' ? '-ml-4 text-ef-light-purple' : 'hover:text-ef-light-purple'" }
+							class="text-ef-light-gray hover:text-ef-light-purple transition-colors duration-300"
+							:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' && '-ml-4 text-ef-light-purple'" }
 						>
 							{ "-- " + row.ShortTitle }
 						</a>
