@@ -17,19 +17,19 @@ func main() {
 		panic(err)
 	}
 
-	galleryConfig, err := config.ReadGalleryConfig("./configs/gallery.toml")
+	galleries, err := config.ReadGalleryConfigsIn("./configs")
 	if err != nil {
 		panic(err)
 	}
 
-	gallery := handlers.Gallery{
-		GalleryConfig: *galleryConfig,
+	gallery := handlers.Galleries{
+		Galleries: galleries,
 	}
 
 	// create routes
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", gallery.GalleryHandler)
-	mux.HandleFunc("GET /gallery", gallery.GalleryHandler)
+	mux.HandleFunc("GET /gallery/{shortName}", gallery.GalleryHandler)
 	mux.HandleFunc("GET /about", handlers.AboutHandler)
 
 	// serve static files

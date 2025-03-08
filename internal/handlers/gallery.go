@@ -7,10 +7,23 @@ import (
 	"github.com/agiannif/adistantcloud/web/template"
 )
 
-type Gallery struct {
-	GalleryConfig config.GalleryConfig
+type Galleries struct {
+	Galleries map[string]*config.GalleryConfig
 }
 
-func (g *Gallery) GalleryHandler(w http.ResponseWriter, r *http.Request) {
-	template.Gallery(&g.GalleryConfig).Render(r.Context(), w)
+func (g *Galleries) GalleryHandler(w http.ResponseWriter, r *http.Request) {
+	galleryShortName := r.PathValue("shortName")
+
+	// temp default to "lost" until we add a home page and other galleries
+	if galleryShortName == "" {
+		galleryShortName = "lost"
+	}
+
+	galleryConfig, ok := g.Galleries[galleryShortName]
+	if !ok {
+		http.Error(w, "specified gallery not found", http.StatusBadRequest)
+		return
+	}
+
+	template.Gallery(galleryConfig).Render(r.Context(), w)
 }

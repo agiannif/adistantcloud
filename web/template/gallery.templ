@@ -7,7 +7,7 @@ import (
 
 templ Gallery(gallery *config.GalleryConfig) {
 	@page() {
-		@navWithHeader("/")
+		@navWithHeader("/", gallery.Metadata.Name)
 		<div class="flex justify-center">
 			<div
 				class="grid grid-cols-[256px_minmax(0,_1fr)_256px] gap-8"
