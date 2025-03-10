@@ -57,6 +57,25 @@
 
 @layer utilities {
 
+  /* Width and Height Breakpoints */
+  @media (width>=80rem) and (height>=60rem) {
+    .full\:grid {
+      display: grid
+    }
+
+    .full\:inline {
+      display: inline
+    }
+
+    .full\:grid-cols-\[256px_minmax\(0\,_1fr\)_256px\] {
+      grid-template-columns: 256px minmax(0, 1fr) 256px
+    }
+
+    .full\:gap-8 {
+      gap: calc(var(--spacing)*8)
+    }
+  }
+
   /* Grid Template Columns */
   .grid-cols-79 {
     grid-template-columns: repeat(79, minmax(0, 1fr));

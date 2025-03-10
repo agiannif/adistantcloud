@@ -40,7 +40,8 @@ func navLinkClasses(isActive bool) map[string]bool {
 	}
 }
 
-templ nav(currentPath string) {
+// transform these nav classes into parent classes so the one using them can insert custom styles
+templ nav(currentPath, header string) {
 	<nav
 		x-data="{ atTop: true }"
 		@scroll.window.throttle.50ms="atTop = (window.pageYOffset < 10) ? true : false"
@@ -56,7 +57,7 @@ templ nav(currentPath string) {
 					class="ml-auto transition-opacity duration-300"
 					:class="visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
 				>
-					<a class="font-title text-lg text-ef-light-purple block" href="/">irretrievably lost</a>
+					<a class="font-title text-lg text-ef-light-purple block" href="/">{ header }</a>
 				</li>
 			</ul>
 		</div>
@@ -66,7 +67,7 @@ templ nav(currentPath string) {
 
 templ navWithHeader(currentPath, header string) {
 	<div x-data="{ visible: false }">
-		@nav(currentPath)
+		@nav(currentPath, header)
 		<header
 			x-intersect:leave="visible = true"
 			x-intersect:enter="visible = false"

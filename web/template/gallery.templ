@@ -10,7 +10,7 @@ templ Gallery(gallery *config.GalleryConfig) {
 		@navWithHeader("/", gallery.Metadata.Name)
 		<div class="flex justify-center">
 			<div
-				class="grid grid-cols-[256px_minmax(0,_1fr)_256px] gap-8"
+				class="full:grid full:grid-cols-[256px_minmax(0,_1fr)_256px] full:gap-8"
 				x-data="{
 					activeSection: null,
 					sections: document.querySelectorAll('h2[id^=section]'),
@@ -33,7 +33,7 @@ templ Gallery(gallery *config.GalleryConfig) {
 				x-init="updateGalleryNav()"
 				@scroll.window.throttle.50ms="updateGalleryNav()"
 			>
-				<div>
+				<div class="hidden full:inline">
 					@galleryNav(gallery)
 				</div>
 				<main class="max-w-7xl p-6 grid grid-cols-79 gap-y-3 place-items-center">
