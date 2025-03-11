@@ -144,8 +144,13 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 				loading="lazy"
 				src={ imagePath }
 				alt={ image.Alt }
-				width="1232"
-				height="820"
+				if gridConfigs[i].IsVert {
+					width="820"
+					height="1232"
+				} else {
+					width="1232"
+					height="820"
+				}
 			/>
 			// Fullscreen overlay
 			<template x-teleport="body">
@@ -162,8 +167,13 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 						loading="lazy"
 						src={ imagePath }
 						alt={ image.Alt }
-						width="1232"
-						height="820"
+						if gridConfigs[i].IsVert {
+							width="820"
+							height="1232"
+						} else {
+							width="1232"
+							height="820"
+						}
 					/>
 				</div>
 			</template>
@@ -172,24 +182,28 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 }
 
 type GridConfig struct {
-	Start string
-	Span  string
+	Start  string
+	Span   string
+	IsVert bool
 }
 
 func getGridConfigs(layout config.Layout) []GridConfig {
 	// different layouts support different numbers of photos
 	// for now we just assume that there are the correct number of photos provided per row
+	// IsVert is used for width / height, which determines the background size before load
+	// just because IsVert is false here may not mean the photo is actually horizontal, the
+	// background with just render this way before loading in
 	switch layout {
 	case config.LayoutFull:
-		return []GridConfig{{"1", "79"}}
+		return []GridConfig{{"1", "79", false}}
 	case config.LayoutHalf:
-		return []GridConfig{{"1", "39"}, {"41", "39"}}
+		return []GridConfig{{"1", "39", false}, {"41", "39", false}}
 	case config.LayoutSplit:
-		return []GridConfig{{"1", "54"}, {"56", "24"}}
+		return []GridConfig{{"1", "54", false}, {"56", "24", true}}
 	case config.LayoutFlipSplit:
-		return []GridConfig{{"1", "24"}, {"26", "54"}}
+		return []GridConfig{{"1", "24", true}, {"26", "54", false}}
 	case config.LayoutCenter:
-		return []GridConfig{{"21", "39"}}
+		return []GridConfig{{"21", "39", false}}
 	default:
 		return []GridConfig{}
 	}
