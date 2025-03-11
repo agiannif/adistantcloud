@@ -8,9 +8,10 @@ templ page() {
 			<meta name="theme-color" content="#fdf6e3"/>
 			<title>a distant cloud</title>
 			// style and fonts
-			<link rel="stylesheet" href="/static/css/style.min.css"/>
 			<link rel="preload" href="/static/fonts/Grenze/Grenze-Light.woff2" as="font" type="font/woff2" crossorigin/>
 			<link rel="preload" href="/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Regular.woff2" as="font" type="font/woff2" crossorigin/>
+			<link rel="stylesheet" href="/static/css/fonts.css"/>
+			<link rel="stylesheet" href="/static/css/style.min.css"/>
 			// favicon configuration
 			<link rel="icon" type="image/png" href="/static/favicon/favicon-48x48.png" sizes="48x48"/>
 			<link rel="icon" type="image/svg+xml" href="/static/favicon/favicon.svg"/>
@@ -53,9 +54,8 @@ templ nav(currentPath, header string) {
 				<li><a class={ navLinkClasses(currentPath == "/") } href="/">go home</a></li>
 				<li><a class={ navLinkClasses(currentPath == "/about") } href="/about">about</a></li>
 				<li
-					x-cloak
 					class="ml-auto transition-opacity duration-300"
-					:class="visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
+					:class="titleVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
 				>
 					<a class="font-title text-lg text-ef-light-purple block" href="/">{ header }</a>
 				</li>
@@ -66,11 +66,11 @@ templ nav(currentPath, header string) {
 }
 
 templ navWithHeader(currentPath, header string) {
-	<div x-data="{ visible: false }">
+	<div x-data="{ titleVisible: false }">
 		@nav(currentPath, header)
 		<header
-			x-intersect:leave="visible = true"
-			x-intersect:enter="visible = false"
+			x-intersect:leave="titleVisible = true"
+			x-intersect:enter="titleVisible = false"
 			class="max-w-7xl mx-auto px-6 flex justify-center"
 		>
 			<h1 class="text-7xl font-light font-title">

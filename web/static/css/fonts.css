@@ -1,0 +1,370 @@
+/* Atkinson Hyperlegible Next */
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraLight.woff2) format("woff2");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraLightItalic.woff2) format("woff2");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Light.woff2) format("woff2");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-LightItalic.woff2) format("woff2");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Regular.woff2) format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-RegularItalic.woff2) format("woff2");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Medium.woff2) format("woff2");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-MediumItalic.woff2) format("woff2");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-SemiBold.woff2) format("woff2");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-SemiBoldItalic.woff2) format("woff2");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Bold.woff2) format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-BoldItalic.woff2) format("woff2");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraBold.woff2) format("woff2");
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraBoldItalic.woff2) format("woff2");
+  font-weight: 800;
+  font-style: italic;
+}
+
+/* Atkinson Hyperlegible Mono */
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraLight.woff2) format("woff2");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraLightItalic.woff2) format("woff2");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Light.woff2) format("woff2");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-LightItalic.woff2) format("woff2");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Regular.woff2) format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-RegularItalic.woff2) format("woff2");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Medium.woff2) format("woff2");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-MediumItalic.woff2) format("woff2");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-SemiBold.woff2) format("woff2");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-SemiBoldItalic.woff2) format("woff2");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Bold.woff2) format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-BoldItalic.woff2) format("woff2");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraBold.woff2) format("woff2");
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-display: swap;
+  src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraBoldItalic.woff2) format("woff2");
+  font-weight: 800;
+  font-style: italic;
+}
+
+/* Grenze */
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-Thin.woff2) format("woff2");
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-ThinItalic.woff2) format("woff2");
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-ExtraLight.woff2) format("woff2");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-ExtraLightItalic.woff2) format("woff2");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-Light.woff2) format("woff2");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-LightItalic.woff2) format("woff2");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-Regular.woff2) format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-Italic.woff2) format("woff2");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-Medium.woff2) format("woff2");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-MediumItalic.woff2) format("woff2");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-SemiBold.woff2) format("woff2");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-SemiBoldItalic.woff2) format("woff2");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-Bold.woff2) format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-BoldItalic.woff2) format("woff2");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-ExtraBold.woff2) format("woff2");
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-ExtraBoldItalic.woff2) format("woff2");
+  font-weight: 800;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-Black.woff2) format("woff2");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Grenze";
+  font-display: swap;
+  src: url(/static/fonts/Grenze/Grenze-BlackItalic.woff2) format("woff2");
+  font-weight: 900;
+  font-style: italic;
+}
