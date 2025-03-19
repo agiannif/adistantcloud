@@ -36,6 +36,9 @@ templ Gallery(gallery *config.GalleryConfig) {
 				<div class="hidden full:inline">
 					@galleryNav(gallery)
 				</div>
+				<div class="inline full:hidden">
+					@mobileGalleryNav(gallery)
+				</div>
 				<main class="max-w-7xl p-6 grid grid-cols-79 gap-y-3 place-items-center">
 					{{ currentSection := 0 }}
 					for _, row := range gallery.Rows {
@@ -72,6 +75,57 @@ templ galleryNav(gallery *config.GalleryConfig) {
 			}
 		</ul>
 	</nav>
+}
+
+templ mobileGalleryNav(gallery *config.GalleryConfig) {
+	<nav
+		x-data="{ expanded: false }"
+		class="fixed left-0 right-0 bottom-0 bg-ef-light-bg-dim z-50 top-shadow-md transition-all duration-300"
+		:class="expanded ? 'h-auto max-h-64 overflow-y-auto' : 'h-16'"
+	>
+		<div class="max-w-7xl mx-auto px-6 py-3">
+			<div
+				@click="expanded = !expanded"
+				class="flex items-center justify-between w-full cursor-pointer"
+			>
+				<div class="flex items-center w-full gap-6 text-ef-light-fg text-lg border-l-2 border-l-ef-light-gray">
+					{{ currentSection := 0 }}
+					for _, row := range gallery.Rows {
+						if row.Layout == config.LayoutSection {
+							<p
+								class="text-ef-light-purple underline ml-2"
+								:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' || 'hidden'" }
+							>
+								{ row.ShortTitle }
+							</p>
+							{{ currentSection++ }}
+						}
+					}
+				</div>
+			</div>
+			<!-- Section links -->
+			<div
+				class="mt-3 flex flex-col gap-3 text-ef-light-fg text-lg border-l-2 border-l-ef-light-gray transition-all duration-300 px-6"
+				:class="expanded ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'"
+			>
+				{{ currentSection = 0 }}
+				for _, row := range gallery.Rows {
+					if row.Layout == config.LayoutSection {
+						<a
+							href={ templ.URL("#section" + strconv.Itoa(currentSection)) }
+							class="text-ef-light-gray hover:text-ef-light-purple transition-colors duration-300"
+							:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' && '-ml-4 text-ef-light-purple'" }
+							@click="expanded = false"
+						>
+							{ row.ShortTitle }
+						</a>
+						{{ currentSection++ }}
+					}
+				}
+			</div>
+		</div>
+	</nav>
+	<div class="mt-32"></div>
 }
 
 templ goToTopButton() {
