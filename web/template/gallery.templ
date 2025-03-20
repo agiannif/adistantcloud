@@ -12,7 +12,7 @@ templ Gallery(gallery *config.GalleryConfig) {
 			<div
 				class="full:grid full:grid-cols-[256px_minmax(0,_1fr)_256px] full:gap-8"
 				x-data="{
-					activeSection: null,
+					activeSection: section1,
 					sections: document.querySelectorAll('h2[id^=section]'),
 					updateGalleryNav() {
 						// calculate distance of all gallery sections
@@ -25,7 +25,7 @@ templ Gallery(gallery *config.GalleryConfig) {
             // find the section that is the closest and above the midpoint
             let closestNegativeTop = Math.max(...Object.keys(sectionsByDistanceFromTop).filter(top => top < 0))
             if (closestNegativeTop >= 0 || [Infinity, NaN, -Infinity].includes(closestNegativeTop)) {
-						  return this.activeSection = null
+						  return this.activeSection = section1
 						}
             this.activeSection = sectionsByDistanceFromTop[closestNegativeTop].id
 					}
@@ -81,10 +81,11 @@ templ mobileGalleryNav(gallery *config.GalleryConfig) {
 	<nav
 		x-data="{ expanded: false }"
 		class="fixed left-0 right-0 bottom-0 bg-ef-light-bg-dim z-50 top-shadow-md transition-all duration-300"
-		:class="expanded ? 'h-auto max-h-64 overflow-y-auto' : 'h-16'"
+		:class="expanded ? 'h-screen max-h-screen md:h-auto md:max-h-64 overflow-y-auto' : 'h-16'"
 	>
 		<div class="max-w-7xl mx-auto px-6 py-3">
 			<div
+				x-show="!expanded"
 				@click="expanded = !expanded"
 				class="flex items-center justify-between w-full cursor-pointer"
 			>
@@ -103,10 +104,20 @@ templ mobileGalleryNav(gallery *config.GalleryConfig) {
 					}
 				</div>
 			</div>
-			<!-- Section links -->
+			// close button
 			<div
-				class="mt-3 flex flex-col gap-3 text-ef-light-fg text-lg border-l-2 border-l-ef-light-gray transition-all duration-300 px-6"
-				:class="expanded ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'"
+				x-show="expanded"
+				@click="expanded = false"
+				class="flex justify-end mb-4"
+			>
+				<button class="text-ef-light-gray hover:text-ef-lightpurple p-2">
+					Close
+				</button>
+			</div>
+			// section links
+			<div
+				class="mt-3 flex flex-col gap-3 text-ef-light-fg text-lg border-l-2 border-l-ef-light-gray transition duration-300 px-6 touch-none"
+				:class="expanded || 'h-0 overflow-hidden'"
 			>
 				{{ currentSection = 0 }}
 				for _, row := range gallery.Rows {
@@ -125,7 +136,6 @@ templ mobileGalleryNav(gallery *config.GalleryConfig) {
 			</div>
 		</div>
 	</nav>
-	<div class="mt-32"></div>
 }
 
 templ goToTopButton() {
@@ -138,7 +148,7 @@ templ goToTopButton() {
 			x-cloak
 			x-transition
 			@click="window.scrollTo({top: 0, behavior: 'smooth'})"
-			class="fixed bottom-8 right-8 z-50 p-3 rounded-full bg-ef-light-gray-dim hover:bg-ef-light-gray active:bg-ef-light-gray-light text-ef-light-bg-light focus:outline-none focus:ring-2 focus:ring-ef-light-blue/75 transition-all cursor-pointer"
+			class="fixed bottom-24 right-8 z-25 p-3 rounded-full bg-ef-light-gray-dim hover:bg-ef-light-gray active:bg-ef-light-gray-light text-ef-light-bg-light focus:outline-none focus:ring-2 focus:ring-ef-light-blue/75 transition-all cursor-pointer"
 		>
 			<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
@@ -206,7 +216,7 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 					height="820"
 				}
 			/>
-			// Fullscreen overlay
+			// fullscreen overlay
 			<template x-teleport="body">
 				<div
 					x-show="isFullscreen"
