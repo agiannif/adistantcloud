@@ -14,6 +14,7 @@ templ Gallery(gallery *config.GalleryConfig) {
 				x-data="{
 					activeSection: section1,
 					sections: document.querySelectorAll('h2[id^=section]'),
+					galleryNavExpanded: false,
 					updateGalleryNav() {
 						// calculate distance of all gallery sections
             let midScreen = window.innerHeight / 2
@@ -28,6 +29,16 @@ templ Gallery(gallery *config.GalleryConfig) {
 						  return this.activeSection = section1
 						}
             this.activeSection = sectionsByDistanceFromTop[closestNegativeTop].id
+					},
+					toggleMobileGalleryNav() {
+					  this.galleryNavExpanded = !this.galleryNavExpanded;
+						if (this.galleryNavExpanded) {
+						  document.body.classList.add('h-full');
+						  document.body.classList.add('overflow-y-hidden');
+						} else {
+						  document.body.classList.remove('h-full');
+						  document.body.classList.remove('overflow-y-hidden');
+						}
 					}
 				}"
 				x-init="updateGalleryNav()"
@@ -79,63 +90,73 @@ templ galleryNav(gallery *config.GalleryConfig) {
 
 templ mobileGalleryNav(gallery *config.GalleryConfig) {
 	<nav
-		x-data="{ expanded: false }"
-		class="fixed left-0 right-0 bottom-0 bg-ef-light-bg-dim z-50 top-shadow-md transition-all duration-300"
-		:class="expanded ? 'h-screen max-h-screen md:h-auto md:max-h-64 overflow-y-auto' : 'h-16'"
+		class="fixed transition-all duration-300 bg-ef-light-bg-dim z-50 left-0 right-0 bottom-0"
+		:class="galleryNavExpanded ? 'h-full' : 'h-16 top-shadow-md'"
+		x-transition
 	>
-		<div class="max-w-7xl mx-auto px-6 py-3">
+		<div
+			class="max-w-7xl mx-auto px-6 py-3 overflow-y-auto"
+			:class="galleryNavExpanded && 'h-full flex flex-col'"
+		>
+			// collapsed header, when nav is minimized
 			<div
-				x-show="!expanded"
-				@click="expanded = !expanded"
+				x-show="!galleryNavExpanded"
+				@click="toggleMobileGalleryNav()"
 				class="flex items-center justify-between w-full cursor-pointer"
 			>
 				<div class="flex items-center w-full gap-6 text-ef-light-fg text-lg border-l-2 border-l-ef-light-gray">
-					{{ currentSection := 0 }}
-					for _, row := range gallery.Rows {
-						if row.Layout == config.LayoutSection {
-							<p
-								class="text-ef-light-purple underline ml-2"
-								:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' || 'hidden'" }
-							>
-								{ row.ShortTitle }
-							</p>
-							{{ currentSection++ }}
-						}
-					}
+					@displayActiveSectionTitle(gallery)
 				</div>
 			</div>
-			// close button
-			<div
-				x-show="expanded"
-				@click="expanded = false"
-				class="flex justify-end mb-4"
+			// expanded view close button
+			<button
+				x-show="galleryNavExpanded"
+				@click="toggleMobileGalleryNav()"
+				class="self-end text-ef-light-gray hover:text-ef-light-purple p-2 mb-4"
 			>
-				<button class="text-ef-light-gray hover:text-ef-lightpurple p-2">
-					Close
-				</button>
-			</div>
+				Close
+			</button>
 			// section links
 			<div
 				class="mt-3 flex flex-col gap-3 text-ef-light-fg text-lg border-l-2 border-l-ef-light-gray transition duration-300 px-6 touch-none"
-				:class="expanded || 'h-0 overflow-hidden'"
+				:class="galleryNavExpanded || 'h-0 overflow-hidden'"
 			>
-				{{ currentSection = 0 }}
-				for _, row := range gallery.Rows {
-					if row.Layout == config.LayoutSection {
-						<a
-							href={ templ.URL("#section" + strconv.Itoa(currentSection)) }
-							class="text-ef-light-gray hover:text-ef-light-purple transition-colors duration-300"
-							:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' && '-ml-4 text-ef-light-purple'" }
-							@click="expanded = false"
-						>
-							{ row.ShortTitle }
-						</a>
-						{{ currentSection++ }}
-					}
-				}
+				@sectionLinks(gallery)
 			</div>
 		</div>
 	</nav>
+}
+
+templ displayActiveSectionTitle(gallery *config.GalleryConfig) {
+	{{ currentSection := 0 }}
+	for _, row := range gallery.Rows {
+		if row.Layout == config.LayoutSection {
+			<p
+				class="text-ef-light-purple underline ml-2"
+				:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' || 'hidden'" }
+			>
+				{ row.ShortTitle }
+			</p>
+			{{ currentSection++ }}
+		}
+	}
+}
+
+templ sectionLinks(gallery *config.GalleryConfig) {
+	{{ currentSection := 0 }}
+	for _, row := range gallery.Rows {
+		if row.Layout == config.LayoutSection {
+			<a
+				href={ templ.URL("#section" + strconv.Itoa(currentSection)) }
+				class="text-ef-light-gray hover:text-ef-light-purple transition-colors duration-300"
+				:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' && '-ml-4 text-ef-light-purple'" }
+				@click="toggleMobileGalleryNav()"
+			>
+				{ row.ShortTitle }
+			</a>
+			{{ currentSection++ }}
+		}
+	}
 }
 
 templ goToTopButton() {
@@ -208,13 +229,8 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 				loading="lazy"
 				src={ imagePath }
 				alt={ image.Alt }
-				if gridConfigs[i].IsVert {
-					width="820"
-					height="1232"
-				} else {
-					width="1232"
-					height="820"
-				}
+				width="1232"
+				height="820"
 			/>
 			// fullscreen overlay
 			<template x-teleport="body">
@@ -231,13 +247,8 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 						loading="lazy"
 						src={ imagePath }
 						alt={ image.Alt }
-						if gridConfigs[i].IsVert {
-							width="820"
-							height="1232"
-						} else {
-							width="1232"
-							height="820"
-						}
+						width="1232"
+						height="820"
 					/>
 				</div>
 			</template>
@@ -246,9 +257,8 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 }
 
 type GridConfig struct {
-	Start  string
-	Span   string
-	IsVert bool
+	Start string
+	Span  string
 }
 
 func getGridConfigs(layout config.Layout) []GridConfig {
@@ -259,15 +269,15 @@ func getGridConfigs(layout config.Layout) []GridConfig {
 	// background with just render this way before loading in
 	switch layout {
 	case config.LayoutFull:
-		return []GridConfig{{"1", "79", false}}
+		return []GridConfig{{"1", "79"}}
 	case config.LayoutHalf:
-		return []GridConfig{{"1", "39", false}, {"41", "39", false}}
+		return []GridConfig{{"1", "39"}, {"41", "39"}}
 	case config.LayoutSplit:
-		return []GridConfig{{"1", "54", false}, {"56", "24", true}}
+		return []GridConfig{{"1", "54"}, {"56", "24"}}
 	case config.LayoutFlipSplit:
-		return []GridConfig{{"1", "24", true}, {"26", "54", false}}
+		return []GridConfig{{"1", "24"}, {"26", "54"}}
 	case config.LayoutCenter:
-		return []GridConfig{{"21", "39", false}}
+		return []GridConfig{{"21", "39"}}
 	default:
 		return []GridConfig{}
 	}
