@@ -57,6 +57,47 @@
 
 @layer utilities {
 
+  /* Safe List */
+  .overflow-y-hidden {
+    overflow-y: hidden;
+  }
+
+  .h-full {
+    height: 100%;
+  }
+
+  /* Directional Shadow */
+  .top-shadow-md {
+    filter: drop-shadow(0 -3px 3px rgb(0 0 0 / 0.12))
+  }
+
+  /* Width and Height Breakpoints */
+  @media (width>=80rem) and (height>=60rem) {
+    .full\:grid {
+      display: grid
+    }
+
+    .full\:inline {
+      display: inline
+    }
+
+    .full\:hidden {
+      display: none
+    }
+
+    .full\:grid-cols-\[256px_minmax\(0\,_1fr\)_256px\] {
+      grid-template-columns: 256px minmax(0, 1fr) 256px
+    }
+
+    .full\:gap-8 {
+      gap: calc(var(--spacing)*8)
+    }
+
+    .full\:mb-0 {
+      margin-bottom: calc(var(--spacing) * 0)
+    }
+  }
+
   /* Grid Template Columns */
   .grid-cols-79 {
     grid-template-columns: repeat(79, minmax(0, 1fr));
@@ -67,37 +108,81 @@
     grid-column: span 79 / span 79;
   }
 
+  .md\:col-span-79 {
+    @media (width >=48rem) {
+      grid-column: span 79 / span 79;
+    }
+  }
+
   .col-span-39 {
     grid-column: span 39 / span 39;
+  }
+
+  .md\:col-span-39 {
+    @media (width >=48rem) {
+      grid-column: span 39 / span 39;
+    }
   }
 
   .col-span-54 {
     grid-column: span 54 / span 54;
   }
 
+  .md\:col-span-54 {
+    @media (width >=48rem) {
+      grid-column: span 54 / span 54;
+    }
+  }
+
   .col-span-24 {
     grid-column: span 24 / span 24;
   }
 
-  /* Grid Column Start Positions */
-  .col-start-0 {
-    grid-column-start: 0;
+  .md\:col-span-24 {
+    @media (width >=48rem) {
+      grid-column: span 24 / span 24;
+    }
   }
 
+  /* Grid Column Start Positions */
   .col-start-21 {
     grid-column-start: 21;
+  }
+
+  .md\:col-start-21 {
+    @media (width >=48rem) {
+      grid-column-start: 21
+    }
   }
 
   .col-start-26 {
     grid-column-start: 26;
   }
 
+  .md\:col-start-26 {
+    @media (width >=48rem) {
+      grid-column-start: 26;
+    }
+  }
+
   .col-start-41 {
     grid-column-start: 41;
   }
 
+  .md\:col-start-41 {
+    @media (width >=48rem) {
+      grid-column-start: 41;
+    }
+  }
+
   .col-start-56 {
     grid-column-start: 56;
+  }
+
+  .md\:col-start-56 {
+    @media (width >=48rem) {
+      grid-column-start: 56;
+    }
   }
 }
 
@@ -106,376 +191,5 @@
   /* Alpine.js x-cloak utility */
   [x-cloak] {
     display: none !important;
-  }
-
-  /* Atkinson Hyperlegible Next */
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraLight.woff2) format("woff2");
-    font-weight: 200;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraLightItalic.woff2) format("woff2");
-    font-weight: 200;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Light.woff2) format("woff2");
-    font-weight: 300;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-LightItalic.woff2) format("woff2");
-    font-weight: 300;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Regular.woff2) format("woff2");
-    font-weight: 400;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-RegularItalic.woff2) format("woff2");
-    font-weight: 400;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Medium.woff2) format("woff2");
-    font-weight: 500;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-MediumItalic.woff2) format("woff2");
-    font-weight: 500;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-SemiBold.woff2) format("woff2");
-    font-weight: 600;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-SemiBoldItalic.woff2) format("woff2");
-    font-weight: 600;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Bold.woff2) format("woff2");
-    font-weight: 700;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-BoldItalic.woff2) format("woff2");
-    font-weight: 700;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraBold.woff2) format("woff2");
-    font-weight: 800;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Next";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-ExtraBoldItalic.woff2) format("woff2");
-    font-weight: 800;
-    font-style: italic;
-  }
-
-  /* Atkinson Hyperlegible Mono */
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraLight.woff2) format("woff2");
-    font-weight: 200;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraLightItalic.woff2) format("woff2");
-    font-weight: 200;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Light.woff2) format("woff2");
-    font-weight: 300;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-LightItalic.woff2) format("woff2");
-    font-weight: 300;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Regular.woff2) format("woff2");
-    font-weight: 400;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-RegularItalic.woff2) format("woff2");
-    font-weight: 400;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Medium.woff2) format("woff2");
-    font-weight: 500;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-MediumItalic.woff2) format("woff2");
-    font-weight: 500;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-SemiBold.woff2) format("woff2");
-    font-weight: 600;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-SemiBoldItalic.woff2) format("woff2");
-    font-weight: 600;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-Bold.woff2) format("woff2");
-    font-weight: 700;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-BoldItalic.woff2) format("woff2");
-    font-weight: 700;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraBold.woff2) format("woff2");
-    font-weight: 800;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Atkinson Hyperlegible Mono";
-    font-display: swap;
-    src: url(/static/fonts/Atkinson_Hyperlegible_Mono/AtkinsonHyperlegibleMono-ExtraBoldItalic.woff2) format("woff2");
-    font-weight: 800;
-    font-style: italic;
-  }
-
-  /* Grenze */
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-Thin.woff2) format("woff2");
-    font-weight: 100;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-ThinItalic.woff2) format("woff2");
-    font-weight: 100;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-ExtraLight.woff2) format("woff2");
-    font-weight: 200;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-ExtraLightItalic.woff2) format("woff2");
-    font-weight: 200;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-Light.woff2) format("woff2");
-    font-weight: 300;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-LightItalic.woff2) format("woff2");
-    font-weight: 300;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-Regular.woff2) format("woff2");
-    font-weight: 400;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-Italic.woff2) format("woff2");
-    font-weight: 400;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-Medium.woff2) format("woff2");
-    font-weight: 500;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-MediumItalic.woff2) format("woff2");
-    font-weight: 500;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-SemiBold.woff2) format("woff2");
-    font-weight: 600;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-SemiBoldItalic.woff2) format("woff2");
-    font-weight: 600;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-Bold.woff2) format("woff2");
-    font-weight: 700;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-BoldItalic.woff2) format("woff2");
-    font-weight: 700;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-ExtraBold.woff2) format("woff2");
-    font-weight: 800;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-ExtraBoldItalic.woff2) format("woff2");
-    font-weight: 800;
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-Black.woff2) format("woff2");
-    font-weight: 900;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "Grenze";
-    font-display: swap;
-    src: url(/static/fonts/Grenze/Grenze-BlackItalic.woff2) format("woff2");
-    font-weight: 900;
-    font-style: italic;
   }
 }

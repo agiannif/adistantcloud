@@ -6,6 +6,9 @@ gen:
 	templ generate ./web/template
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.min.css --minify
 
+gen-tailwindcss:
+	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.css
+
 build: gen
 	go build ./cmd/adistantcloud
 
@@ -23,6 +26,7 @@ clean:
 	rm -f adistantcloud
 	rm -f web/template/*_templ.go
 	rm -f web/static/css/style.min.css
+	rm -f web/static/css/style.css
 	rm -f bundle.tgz
 
 bundle: clean build-release-amd
@@ -36,6 +40,7 @@ help:
 	@echo "Targets:"
 	@echo "  all               : run (default)"
 	@echo "  gen               : generate tmpl and tailwind code"
+	@echo "  gen-tailwindcss   : generate normal tailwind output for debugging"
 	@echo "  build             : compile the project"
 	@echo "  build-release     : compile without symbols"
 	@echo "  build-release-amd : compile for linux amd64"

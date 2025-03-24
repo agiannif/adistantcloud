@@ -2,29 +2,28 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/agiannif/adistantcloud/internal/config"
 	"github.com/agiannif/adistantcloud/web/template"
 )
 
-type Gallery struct {
-	GalleryConfig  config.GalleryConfig
-	NumRowsPerPage int
+type Galleries struct {
+	Galleries map[string]*config.GalleryConfig
 }
 
-func (g *Gallery) GalleryHandler(w http.ResponseWriter, r *http.Request) {
-	template.Gallery(&g.GalleryConfig, g.NumRowsPerPage).Render(r.Context(), w)
-}
+func (g *Galleries) GalleryHandler(w http.ResponseWriter, r *http.Request) {
+	galleryShortName := r.PathValue("shortName")
 
-func (g *Gallery) ImagePageHandler(w http.ResponseWriter, r *http.Request) {
-	numberOfPages := (len(g.GalleryConfig.Rows) + g.NumRowsPerPage - 1) / g.NumRowsPerPage
-	indexPath := r.PathValue("index")
-	index, err := strconv.Atoi(indexPath)
-	if err != nil || index < 0 || index >= numberOfPages {
-		http.Error(w, "Invalid page index", http.StatusBadRequest)
+	// temp default to "lost" until we add a home page and other galleries
+	if galleryShortName == "" {
+		galleryShortName = "lost"
+	}
+
+	galleryConfig, ok := g.Galleries[galleryShortName]
+	if !ok {
+		http.Error(w, "specified gallery not found", http.StatusBadRequest)
 		return
 	}
 
-	template.ImagePage(index, &g.GalleryConfig, g.NumRowsPerPage).Render(r.Context(), w)
+	template.Gallery(galleryConfig).Render(r.Context(), w)
 }

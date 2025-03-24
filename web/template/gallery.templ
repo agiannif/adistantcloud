@@ -5,56 +5,202 @@ import (
 	"strconv"
 )
 
-templ Gallery(gallery *config.GalleryConfig, numRowsPerPage int) {
+templ Gallery(gallery *config.GalleryConfig) {
 	@page() {
-		@navWithHeader("/")
-		<main class="max-w-7xl mx-auto p-6 grid grid-cols-79 gap-y-3 place-items-center">
-			@ImagePage(0, gallery, numRowsPerPage)
-		</main>
-		<div id="footer"></div>
+		@navWithHeader("/", gallery.Metadata.Name)
+		<div class="flex justify-center">
+			<div
+				class="full:grid full:grid-cols-[256px_minmax(0,_1fr)_256px] full:gap-8"
+				x-data="{
+					activeSection: section1,
+					sections: document.querySelectorAll('h2[id^=section]'),
+					galleryNavExpanded: false,
+					updateGalleryNav() {
+						// calculate distance of all gallery sections
+            let midScreen = window.innerHeight / 2
+            let sectionsByDistanceFromTop = {}
+            this.sections.forEach(section => {
+                sectionsByDistanceFromTop[section.getBoundingClientRect().top - midScreen] = section
+            })
+
+            // find the section that is the closest and above the midpoint
+            let closestNegativeTop = Math.max(...Object.keys(sectionsByDistanceFromTop).filter(top => top < 0))
+            if (closestNegativeTop >= 0 || [Infinity, NaN, -Infinity].includes(closestNegativeTop)) {
+						  return this.activeSection = section1
+						}
+            this.activeSection = sectionsByDistanceFromTop[closestNegativeTop].id
+					},
+					toggleMobileGalleryNav() {
+					  this.galleryNavExpanded = !this.galleryNavExpanded;
+						if (this.galleryNavExpanded) {
+						  document.body.classList.add('h-full');
+						  document.body.classList.add('overflow-y-hidden');
+						} else {
+						  document.body.classList.remove('h-full');
+						  document.body.classList.remove('overflow-y-hidden');
+						}
+					}
+				}"
+				x-init="updateGalleryNav()"
+				@scroll.window.throttle.50ms="updateGalleryNav()"
+			>
+				<div class="hidden full:inline">
+					@galleryNav(gallery)
+				</div>
+				<div class="inline full:hidden">
+					@mobileGalleryNav(gallery)
+				</div>
+				<main class="max-w-7xl p-6 grid grid-cols-79 gap-y-3 place-items-center">
+					{{ currentSection := 0 }}
+					for _, row := range gallery.Rows {
+						@galleryRow(row, currentSection)
+						if row.Layout == config.LayoutSection {
+							{{ currentSection++ }}
+						}
+					}
+					@goToTopButton()
+				</main>
+			</div>
+		</div>
+		@footer()
 	}
 }
 
-templ ImagePage(index int, gallery *config.GalleryConfig, numRowsPerPage int) {
-	{{ pageStart := min(index*numRowsPerPage, len(gallery.Rows)) }}
-	{{ pageEnd := min(pageStart+numRowsPerPage, len(gallery.Rows)) }}
-	{{ isFinalPage := pageEnd == len(gallery.Rows) }}
-	for i, row := range gallery.Rows[pageStart:pageEnd] {
-		{{ isFinalRow := i == numRowsPerPage-1 }}
+templ galleryNav(gallery *config.GalleryConfig) {
+	<nav class="fixed top-1/4 px-6 py-1 ml-3 border-l-2 border-l-ef-light-gray">
+		<ul class="space-y-2">
+			{{ currentSection := 0 }}
+			for _, row := range gallery.Rows {
+				if row.Layout == config.LayoutSection {
+					<li>
+						<a
+							href={ templ.URL("#section" + strconv.Itoa(currentSection)) }
+							class="text-ef-light-gray hover:text-ef-light-purple transition-colors duration-300"
+							:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' && '-ml-4 text-ef-light-purple'" }
+						>
+							{ row.ShortTitle }
+						</a>
+					</li>
+					{{ currentSection++ }}
+				}
+			}
+		</ul>
+	</nav>
+}
+
+templ mobileGalleryNav(gallery *config.GalleryConfig) {
+	<nav
+		class="fixed transition-all duration-300 bg-ef-light-bg-dim z-50 left-0 right-0 bottom-0"
+		:class="galleryNavExpanded ? 'h-full' : 'h-16 top-shadow-md'"
+		x-transition
+	>
+		<div
+			class="max-w-7xl mx-auto px-6 py-3 overflow-y-auto"
+			:class="galleryNavExpanded && 'h-full flex flex-col'"
+		>
+			// collapsed header, when nav is minimized
+			<div
+				x-show="!galleryNavExpanded"
+				@click="toggleMobileGalleryNav()"
+				class="flex items-center justify-between w-full cursor-pointer"
+			>
+				<div class="flex items-center w-full gap-6 text-ef-light-fg text-lg border-l-2 border-l-ef-light-gray">
+					@displayActiveSectionTitle(gallery)
+				</div>
+			</div>
+			// expanded view close button
+			<button
+				x-show="galleryNavExpanded"
+				@click="toggleMobileGalleryNav()"
+				class="self-end text-ef-light-gray hover:text-ef-light-purple p-2 mb-4"
+			>
+				Close
+			</button>
+			// section links
+			<div
+				class="mt-3 flex flex-col gap-3 text-ef-light-fg text-lg border-l-2 border-l-ef-light-gray transition duration-300 px-6 touch-none"
+				:class="galleryNavExpanded || 'h-0 overflow-hidden'"
+			>
+				@sectionLinks(gallery)
+			</div>
+		</div>
+	</nav>
+}
+
+templ displayActiveSectionTitle(gallery *config.GalleryConfig) {
+	{{ currentSection := 0 }}
+	for _, row := range gallery.Rows {
 		if row.Layout == config.LayoutSection {
-			@sectionHeader(row.Title, index, isFinalRow, isFinalPage)
-		} else {
-			@imageRow(row, index, isFinalRow, isFinalPage)
+			<p
+				class="text-ef-light-purple underline ml-2"
+				:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' || 'hidden'" }
+			>
+				{ row.ShortTitle }
+			</p>
+			{{ currentSection++ }}
 		}
 	}
-	if isFinalPage {
-		@footer()
-	} else {
-		<div id={ "target-div-" + strconv.Itoa(index) }></div>
+}
+
+templ sectionLinks(gallery *config.GalleryConfig) {
+	{{ currentSection := 0 }}
+	for _, row := range gallery.Rows {
+		if row.Layout == config.LayoutSection {
+			<a
+				href={ templ.URL("#section" + strconv.Itoa(currentSection)) }
+				class="text-ef-light-gray hover:text-ef-light-purple transition-colors duration-300"
+				:class={ "activeSection === 'section" + strconv.Itoa(currentSection) + "' && '-ml-4 text-ef-light-purple'" }
+				@click="toggleMobileGalleryNav()"
+			>
+				{ row.ShortTitle }
+			</a>
+			{{ currentSection++ }}
+		}
 	}
 }
 
-templ sectionHeader(title string, pageIndex int, isFinalRow, isFinalPage bool) {
+templ goToTopButton() {
+	<div
+		x-data="{ atTop: true }"
+		@scroll.window="atTop = (window.pageYOffset < 10) ? true : false"
+	>
+		<button
+			x-show="!atTop"
+			x-cloak
+			x-transition
+			@click="window.scrollTo({top: 0, behavior: 'smooth'})"
+			class="fixed bottom-24 right-8 z-25 p-3 rounded-full bg-ef-light-gray-dim hover:bg-ef-light-gray active:bg-ef-light-gray-light text-ef-light-bg-light focus:outline-none focus:ring-2 focus:ring-ef-light-blue/75 transition-all cursor-pointer"
+		>
+			<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+			</svg>
+		</button>
+	</div>
+}
+
+templ galleryRow(row config.RowConfig, currentSection int) {
+	if row.Layout == config.LayoutSection {
+		@sectionHeader(row.Title, currentSection)
+	} else {
+		@imageRow(row, currentSection < 2)
+	}
+}
+
+templ sectionHeader(title string, currentSection int) {
 	<div class="col-span-full w-full flex flex-col gap-1 mt-12">
-		<p
-			class="self-start -ml-4 text-ef-light-gray text-lg"
-			if isFinalRow && !isFinalPage {
-				hx-get={ "/img/" + strconv.Itoa(pageIndex+1) }
-				hx-trigger="revealed"
-				hx-swap="outerHTML"
-				hx-target={ "#target-div-" + strconv.Itoa(pageIndex) }
-			}
+		<h2
+			id={ "section" + strconv.Itoa(currentSection) }
+			class="self-start -ml-4 text-ef-light-gray text-lg scroll-m-16"
 		>
 			{ title }
-		</p>
+		</h2>
 		<hr class="w-full border-t-2 border-ef-light-gray"/>
 	</div>
 }
 
-templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool) {
+templ imageRow(row config.RowConfig, highPriority bool) {
 	{{ gridConfigs := getGridConfigs(row.Layout) }}
 	for i, image := range row.Images {
-		{{ isLastImage := i == len(row.Images)-1 }}
 		{{ imagePath := "/assets/images/" + image.File }}
 		<div
 			x-data="{
@@ -71,22 +217,22 @@ templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool
 				}
 			}"
 			@keyup.escape.window="closeFullscreen()"
-			class={ "col-start-" + gridConfigs[i].Start + " col-span-" + gridConfigs[i].Span + " bg-ef-light-bg-dim" }
+			class={ "md:col-span-" + gridConfigs[i].Span + " md:col-start-" + gridConfigs[i].Start + " col-span-79 col-start-1 bg-ef-light-bg-dim" }
 		>
 			<img
 				@click="openFullscreen()"
 				@load="$el.style.opacity=1"
 				class="transition duration-300 opacity-0 cursor-pointer"
+				if highPriority {
+					fetchpriority="high"
+				}
+				loading="lazy"
 				src={ imagePath }
 				alt={ image.Alt }
-				if isFinalRow && isLastImage && !isFinalPage {
-					hx-get={ "/img/" + strconv.Itoa(pageIndex+1) }
-					hx-trigger="revealed"
-					hx-swap="outerHTML"
-					hx-target={ "#target-div-" + strconv.Itoa(pageIndex) }
-				}
+				width="1232"
+				height="820"
 			/>
-			// Fullscreen overlay
+			// fullscreen overlay
 			<template x-teleport="body">
 				<div
 					x-show="isFullscreen"
@@ -98,8 +244,11 @@ templ imageRow(row config.RowConfig, pageIndex int, isFinalRow, isFinalPage bool
 						x-transition:enter.duration.500ms
 						x-transition:leave.duration.400ms
 						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain touch-none"
+						loading="lazy"
 						src={ imagePath }
 						alt={ image.Alt }
+						width="1232"
+						height="820"
 					/>
 				</div>
 			</template>
@@ -115,6 +264,9 @@ type GridConfig struct {
 func getGridConfigs(layout config.Layout) []GridConfig {
 	// different layouts support different numbers of photos
 	// for now we just assume that there are the correct number of photos provided per row
+	// IsVert is used for width / height, which determines the background size before load
+	// just because IsVert is false here may not mean the photo is actually horizontal, the
+	// background with just render this way before loading in
 	switch layout {
 	case config.LayoutFull:
 		return []GridConfig{{"1", "79"}}

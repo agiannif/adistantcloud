@@ -6,6 +6,10 @@ web/static/fonts/*
 # Private notes
 notes.md
 
+# Bin
+adistantcloud
+!adistantcloud/
+
 # Bundle
 bundle.tgz
 

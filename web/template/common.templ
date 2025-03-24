@@ -7,6 +7,11 @@ templ page() {
 			<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<meta name="theme-color" content="#fdf6e3"/>
 			<title>a distant cloud</title>
+			// style and fonts
+			<link rel="preload" href="/static/fonts/Grenze/Grenze-Light.woff2" as="font" type="font/woff2" crossorigin/>
+			<link rel="preload" href="/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Regular.woff2" as="font" type="font/woff2" crossorigin/>
+			<link rel="stylesheet" href="/static/css/fonts.css"/>
+			<link rel="stylesheet" href="/static/css/style.min.css"/>
 			// favicon configuration
 			<link rel="icon" type="image/png" href="/static/favicon/favicon-48x48.png" sizes="48x48"/>
 			<link rel="icon" type="image/svg+xml" href="/static/favicon/favicon.svg"/>
@@ -14,9 +19,6 @@ templ page() {
 			<link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png"/>
 			<meta name="apple-mobile-web-app-title" content="a distant cloud"/>
 			<link rel="manifest" href="/static/favicon/site.webmanifest"/>
-			<link rel="stylesheet" href="/static/css/style.min.css"/>
-			// htmx
-			<script src="/static/script/htmx.min.js"></script>
 			// alpinejs
 			<script defer src="/static/script/alpinejs-intersect.min.js"></script>
 			<script defer src="/static/script/alpinejs.min.js"></script>
@@ -28,7 +30,7 @@ templ page() {
 }
 
 func navLinkClasses(isActive bool) map[string]bool {
-	linkBaseClasses := "underline transition-colors duration-300"
+	linkBaseClasses := "underline transition-colors duration-300 block"
 	activeLinkClasses := "text-ef-light-purple"
 	inactiveLinkClasses := "hover:text-ef-light-purple"
 
@@ -39,23 +41,23 @@ func navLinkClasses(isActive bool) map[string]bool {
 	}
 }
 
-templ nav(currentPath string) {
+// transform these nav classes into parent classes so the one using them can insert custom styles
+templ nav(currentPath, header string) {
 	<nav
 		x-data="{ atTop: true }"
+		@scroll.window.throttle.50ms="atTop = (window.pageYOffset < 10) ? true : false"
 		class="fixed top-0 left-0 right-0 bg-ef-light-bg-dim z-50 transition duration-300"
 		:class="atTop ? 'drop-shadow-none' : 'drop-shadow-md'"
-		@scroll.window="atTop = (window.pageYOffset < 10) ? true : false"
 	>
 		<div class="max-w-7xl mx-auto px-6 py-3">
 			<ul class="flex items-center w-full gap-6 text-ef-light-fg text-lg">
-				<li class={ navLinkClasses(currentPath == "/") }><a href="/">go home</a></li>
-				<li class={ navLinkClasses(currentPath == "/about") }><a href="/about">about</a></li>
+				<li><a class={ navLinkClasses(currentPath == "/") } href="/">go home</a></li>
+				<li><a class={ navLinkClasses(currentPath == "/about") } href="/about">about</a></li>
 				<li
-					class="ml-auto font-title text-lg text-ef-light-purple transition-opacity duration-300"
-					:class="visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
-					x-cloak
+					class="ml-auto transition-opacity duration-300"
+					:class="titleVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
 				>
-					<a href="/">irretrievably lost</a>
+					<a class="font-title text-lg text-ef-light-purple block" href="/">{ header }</a>
 				</li>
 			</ul>
 		</div>
@@ -63,16 +65,16 @@ templ nav(currentPath string) {
 	<div class="mt-32"></div>
 }
 
-templ navWithHeader(currentPath string) {
-	<div x-data="{ visible: false }">
-		@nav(currentPath)
+templ navWithHeader(currentPath, header string) {
+	<div x-data="{ titleVisible: false }">
+		@nav(currentPath, header)
 		<header
+			x-intersect:leave="titleVisible = true"
+			x-intersect:enter="titleVisible = false"
 			class="max-w-7xl mx-auto px-6 flex justify-center"
-			x-intersect:leave="visible = true"
-			x-intersect:enter="visible = false"
 		>
 			<h1 class="text-7xl font-light font-title">
-				irretrievably lost
+				{ header }
 			</h1>
 		</header>
 	</div>
@@ -80,8 +82,8 @@ templ navWithHeader(currentPath string) {
 
 templ footer() {
 	<div class="mb-auto"></div>
-	<footer id="footer" hx-swap-oob="true" class="w-full bg-ef-light-bg-dim overflow-x-hidden">
-		<div class="max-w-7xl mx-auto p-6 flex items-center justify-between">
+	<footer class="w-full bg-ef-light-bg-dim overflow-x-hidden">
+		<div class="max-w-7xl mx-auto p-6 full:mb-0 mb-12 flex items-center justify-between">
 			<ul class="flex flex-col text-ef-light-fg min-w-fit">
 				<li class="relative pl-6">
 					<span class="absolute left-0">©&#xFE0E;</span>
@@ -93,7 +95,7 @@ templ footer() {
 				</li>
 				<li class="relative pl-6">
 					<span class="absolute left-0">⚙&#xFE0E;</span>
-					using go, templ, htmx, alpinejs, tailwindcss
+					using go, templ, alpinejs, tailwindcss
 				</li>
 				<li class="relative pl-6">
 					<span class="absolute left-0">✎&#xFE0E;</span>

@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -26,12 +28,19 @@ type ImageConfig struct {
 type RowConfig struct {
 	Layout      Layout
 	Title       string
+	ShortTitle  string `toml:"short_title"`
 	Description string
 	Images      []ImageConfig
 }
 
+type GalleryMetadata struct {
+	Name      string
+	ShortName string `toml:"short_name"`
+}
+
 type GalleryConfig struct {
-	Rows []RowConfig
+	Rows     []RowConfig
+	Metadata GalleryMetadata
 }
 
 func ReadGalleryConfig(location string) (*GalleryConfig, error) {
@@ -46,4 +55,25 @@ func ReadGalleryConfig(location string) (*GalleryConfig, error) {
 	}
 
 	return &gallery, nil
+}
+
+func ReadGalleryConfigsIn(dir string) (map[string]*GalleryConfig, error) {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read gallery directory %s: %w", dir, err)
+	}
+
+	configs := make(map[string]*GalleryConfig)
+	for _, file := range files {
+		if !file.IsDir() && strings.Contains(strings.ToLower(file.Name()), "gallery") {
+			filePath := filepath.Join(dir, file.Name())
+			config, err := ReadGalleryConfig(filePath)
+			if err != nil {
+				return nil, err
+			}
+			configs[config.Metadata.ShortName] = config
+		}
+	}
+
+	return configs, nil
 }
