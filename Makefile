@@ -1,4 +1,4 @@
-.PHONY: all gen build build-release run clean help
+.PHONY: all gen build build-release run clean bundle bundle-no-assets bundle-for-container image push help
 
 all: run
 
@@ -35,16 +35,28 @@ bundle: clean build-release-amd
 bundle-no-assets: clean build-release-amd
 	tar -czf bundle.tgz configs/ adistantcloud web/static/
 
+bundle-for-container:
+	tar -czf bundle.tgz assets/ configs/
+
+image: clean gen
+	docker build . -t agiannif/adistantcloud:latest
+
+push:
+	docker push agiannif/adistantcloud:latest
+
 help:
 	@echo "Usage: make [target]"
 	@echo "Targets:"
-	@echo "  all               : run (default)"
-	@echo "  gen               : generate tmpl and tailwind code"
-	@echo "  gen-tailwindcss   : generate normal tailwind output for debugging"
-	@echo "  build             : compile the project"
-	@echo "  build-release     : compile without symbols"
-	@echo "  build-release-amd : compile for linux amd64"
-	@echo "  run               : run the project"
-	@echo "  clean             : remove build objects and caches"
-	@echo "  bundle            : create a tgz archive for easy shipping"
-	@echo "  bundle-no-assets  : create a tgz archive without assets"
+	@echo "  all                  : run (default)"
+	@echo "  gen                  : generate tmpl and tailwind code"
+	@echo "  gen-tailwindcss      : generate normal tailwind output for debugging"
+	@echo "  build                : compile the project"
+	@echo "  build-release        : compile without symbols"
+	@echo "  build-release-amd    : compile for linux amd64"
+	@echo "  run                  : run the project"
+	@echo "  clean                : remove build objects and caches"
+	@echo "  bundle               : create a tgz archive for easy shipping"
+	@echo "  bundle-no-assets     : create a tgz archive without assets"
+	@echo "  bundle-for-container : create a tgz archive with only assets"
+	@echo "  image                : build the docker image"
+	@echo "  push                 : push image to docker"
