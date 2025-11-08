@@ -39,7 +39,7 @@ bundle-for-container:
 	tar -czf bundle.tgz assets/ configs/
 
 image: clean gen
-	docker build . -t agiannif/adistantcloud:latest
+	docker build --platform=linux/amd64,linux/arm64 . -t agiannif/adistantcloud:latest
 
 push:
 	docker push agiannif/adistantcloud:latest
