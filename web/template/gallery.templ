@@ -182,7 +182,7 @@ templ galleryRow(row config.RowConfig, currentSection int) {
 	if row.Layout == config.LayoutSection {
 		@sectionHeader(row.Title, currentSection)
 	} else {
-		@imageRow(row, currentSection < 2)
+		@imageRow(row)
 	}
 }
 
@@ -198,7 +198,7 @@ templ sectionHeader(title string, currentSection int) {
 	</div>
 }
 
-templ imageRow(row config.RowConfig, highPriority bool) {
+templ imageRow(row config.RowConfig) {
 	{{ gridConfigs := getGridConfigs(row.Layout) }}
 	for i, image := range row.Images {
 		{{ imagePath := "/assets/images/" + image.File }}
@@ -223,11 +223,7 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 				@click="openFullscreen()"
 				@load="$el.style.opacity=1"
 				class="transition duration-300 opacity-0 cursor-pointer"
-				if highPriority {
-					fetchpriority="high"
-				}
-				loading="lazy"
-				src={ imagePath }
+				x-intersect.once.margin.200px={ "$el.src = '" + imagePath + "'" }
 				alt={ image.Alt }
 				width="1232"
 				height="820"
@@ -244,8 +240,7 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 						x-transition:enter.duration.500ms
 						x-transition:leave.duration.400ms
 						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain touch-none"
-						loading="lazy"
-						src={ imagePath }
+						x-intersect.once={ "$el.src = '" + imagePath + "'" }
 						alt={ image.Alt }
 						width="1232"
 						height="820"
