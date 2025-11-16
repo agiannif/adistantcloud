@@ -1,4 +1,4 @@
-.PHONY: all gen build build-release run clean bundle bundle-no-assets bundle-for-container image push help
+.PHONY: all gen build build-release build-release-amd run clean bundle bundle-no-assets bundle-for-container image push help
 
 all: run
 

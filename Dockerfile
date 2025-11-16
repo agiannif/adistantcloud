@@ -1,7 +1,7 @@
 FROM golang:1-alpine AS builder
-COPY . /tmp/adistantcloud
 WORKDIR /tmp/adistantcloud
-RUN go build -ldflags "-s -w" ./cmd/adistantcloud/
+COPY . .
+RUN CGO_ENABLED=0 go build -ldflags "-w -s" ./cmd/adistantcloud/
 
 FROM scratch AS runner
 COPY --from=builder /tmp/adistantcloud/adistantcloud /
