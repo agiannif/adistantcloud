@@ -1,5 +1,11 @@
 package template
 
+import (
+	"strings"
+
+	"github.com/agiannif/adistantcloud/internal/config"
+)
+
 templ page() {
 	<!DOCTYPE html>
 	<html lang="en" class="bg-ef-light-bg-light">
@@ -41,43 +47,54 @@ func navLinkClasses(isActive bool) map[string]bool {
 	}
 }
 
-// transform these nav classes into parent classes so the one using them can insert custom styles
-templ nav(currentPath, header string) {
+templ nav(currentPath, header string, galleries []config.GalleryMetadata) {
 	<nav
-		x-data="{ atTop: true }"
+		x-data="{ atTop: true, photosOpen: false }"
 		@scroll.window.throttle.50ms="atTop = (window.pageYOffset < 10) ? true : false"
+		@click.away="photosOpen = false"
 		class="fixed top-0 left-0 right-0 bg-ef-light-bg-dim z-50 transition duration-300"
 		:class="atTop ? 'drop-shadow-none' : 'drop-shadow-md'"
 	>
 		<div class="max-w-7xl mx-auto px-6 py-3">
 			<ul class="flex items-center w-full gap-6 text-ef-light-fg text-lg">
-				<li><a class={ navLinkClasses(currentPath == "/") } href="/">go home</a></li>
+				<li class="relative">
+					<button
+						@click="photosOpen = !photosOpen"
+						class={ navLinkClasses(strings.HasPrefix(currentPath, "/gallery/")) }
+					>
+						photos
+					</button>
+					<div
+						x-show="photosOpen"
+						x-transition
+						class="absolute top-full left-0 mt-2 bg-ef-light-bg-dim drop-shadow-md rounded-sm min-w-48"
+					>
+						<ul class="py-2">
+							for _, gallery := range galleries {
+								<li>
+									<a
+										href={ templ.URL("/gallery/" + gallery.ShortName) }
+										class={
+											"block px-4 py-2 transition-colors",
+											templ.KV("text-ef-light-purple", currentPath == "/gallery/"+gallery.ShortName),
+											templ.KV("hover:text-ef-light-purple", currentPath != "/gallery/"+gallery.ShortName),
+										}
+									>
+										{ gallery.Name }
+									</a>
+								</li>
+							}
+						</ul>
+					</div>
+				</li>
 				<li><a class={ navLinkClasses(currentPath == "/about") } href="/about">about</a></li>
-				<li
-					class="ml-auto transition-opacity duration-300"
-					:class="titleVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
-				>
-					<a class="font-title text-lg text-ef-light-purple block" href="/">{ header }</a>
+				<li class="ml-auto">
+					<a href="/" class="font-title text-lg text-ef-light-purple">{ header }</a>
 				</li>
 			</ul>
 		</div>
 	</nav>
 	<div class="mt-32"></div>
-}
-
-templ navWithHeader(currentPath, header string) {
-	<div x-data="{ titleVisible: false }">
-		@nav(currentPath, header)
-		<header
-			x-intersect:leave="titleVisible = true"
-			x-intersect:enter="titleVisible = false"
-			class="max-w-7xl mx-auto px-6 flex justify-center"
-		>
-			<h1 class="text-7xl font-light font-title">
-				{ header }
-			</h1>
-		</header>
-	</div>
 }
 
 templ footer() {

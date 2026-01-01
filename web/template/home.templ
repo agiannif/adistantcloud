@@ -1,0 +1,22 @@
+package template
+
+import "github.com/agiannif/adistantcloud/internal/config"
+
+templ Home(heroImage string, galleries []config.GalleryMetadata) {
+	@page() {
+		@nav("/", "a distant cloud", galleries)
+		<main class="flex-1 flex flex-col items-center justify-center">
+			<h1 class="text-7xl font-light font-title mb-12">
+				a distant cloud
+			</h1>
+			if heroImage != "" {
+				<img
+					src={ "/assets/images/" + heroImage }
+					alt="A photograph from a distant cloud"
+					class="max-w-7xl w-full h-auto px-6"
+				/>
+			}
+		</main>
+		@footer()
+	}
+}

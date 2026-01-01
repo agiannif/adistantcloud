@@ -1,6 +1,6 @@
-.PHONY: all gen build build-release build-release-amd run clean bundle bundle-no-assets bundle-for-container image push help
+.PHONY: all gen build build-release build-release-amd run test clean bundle bundle-no-assets bundle-for-container image push help
 
-all: run
+all: help
 
 gen:
 	templ generate ./web/template
@@ -20,6 +20,9 @@ build-release-amd: gen
 
 run: gen
 	go run ./cmd/adistantcloud
+
+test: gen
+	go test ./...
 
 clean:
 	go clean
@@ -47,13 +50,14 @@ push:
 help:
 	@echo "Usage: make [target]"
 	@echo "Targets:"
-	@echo "  all                  : run (default)"
+	@echo "  all                  : help (default)"
 	@echo "  gen                  : generate tmpl and tailwind code"
 	@echo "  gen-tailwindcss      : generate normal tailwind output for debugging"
 	@echo "  build                : compile the project"
 	@echo "  build-release        : compile without symbols"
 	@echo "  build-release-amd    : compile for linux amd64"
 	@echo "  run                  : run the project"
+	@echo "  test                 : run tests"
 	@echo "  clean                : remove build objects and caches"
 	@echo "  bundle               : create a tgz archive for easy shipping"
 	@echo "  bundle-no-assets     : create a tgz archive without assets"

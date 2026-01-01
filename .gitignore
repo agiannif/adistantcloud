@@ -6,6 +6,14 @@ web/static/fonts/*
 # Private notes
 notes.md
 
+# Claude Code local files
+CLAUDE.local.md
+.claude/settings.local.json
+docs/plans/*
+
+# Git worktrees
+.worktrees
+
 # Bin
 adistantcloud
 !adistantcloud/
