@@ -71,7 +71,7 @@
   }
 
   /* Width and Height Breakpoints */
-  @media (width>=80rem) and (height>=60rem) {
+  @media (width>=80rem) and (height>=50rem) {
     .full\:grid {
       display: grid
     }
