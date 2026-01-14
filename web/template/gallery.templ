@@ -13,9 +13,9 @@ templ Gallery(gallery *config.GalleryConfig, galleries []config.GalleryMetadata)
 				{ gallery.Metadata.Name }
 			</h1>
 		</header>
-		<div class="flex justify-center">
+		<div class="gallery-layout">
 			<div
-				class="full:grid full:grid-cols-[256px_minmax(0,_1fr)_256px] full:gap-8"
+				class="gallery-grid"
 				x-data="{
 					activeSection: section1,
 					sections: document.querySelectorAll('h2[id^=section]'),
@@ -55,7 +55,7 @@ templ Gallery(gallery *config.GalleryConfig, galleries []config.GalleryMetadata)
 				<div class="inline full:hidden">
 					@mobileGalleryNav(gallery)
 				</div>
-				<main class="max-w-7xl p-6 grid grid-cols-79 gap-y-3 place-items-center">
+				<main class="p-6 grid grid-cols-79 gap-y-3 place-items-center">
 					{{ currentSection := 0 }}
 					for _, row := range gallery.Rows {
 						@galleryRow(row, currentSection)

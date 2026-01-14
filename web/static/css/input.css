@@ -84,16 +84,30 @@
       display: none
     }
 
-    .full\:grid-cols-\[256px_minmax\(0\,_1fr\)_256px\] {
-      grid-template-columns: 256px minmax(0, 1fr) 256px
-    }
-
     .full\:gap-8 {
       gap: calc(var(--spacing)*8)
     }
 
     .full\:mb-0 {
       margin-bottom: calc(var(--spacing) * 0)
+    }
+
+    /*
+     * Gallery layout: positions content so right edge aligns with max-w-7xl (80rem)
+     * - 2-column grid: 256px (nav spacer) + flexible (images)
+     * - max-width: 80rem + 256px + 32px gap = 98rem
+     * - margin-right: positions right edge at viewport center + 40rem
+     */
+    .gallery-layout {
+      max-width: 98rem;
+      margin-left: auto;
+      margin-right: max(0px, calc(50vw - 40rem));
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 256px minmax(0, 1fr);
+      gap: calc(var(--spacing) * 8);
     }
   }
 
