@@ -5,12 +5,17 @@ import (
 	"strconv"
 )
 
-templ Gallery(gallery *config.GalleryConfig) {
+templ Gallery(gallery *config.GalleryConfig, galleries []config.GalleryMetadata) {
 	@page() {
-		@navWithHeader("/", gallery.Metadata.Name)
-		<div class="flex justify-center">
+		@nav("/gallery/"+gallery.Metadata.ShortName, "a distant cloud", galleries)
+		<header class="max-w-7xl mx-auto px-6 flex justify-center">
+			<h1 class="text-7xl font-light font-title">
+				{ gallery.Metadata.Name }
+			</h1>
+		</header>
+		<div class="gallery-layout">
 			<div
-				class="full:grid full:grid-cols-[256px_minmax(0,_1fr)_256px] full:gap-8"
+				class="gallery-grid"
 				x-data="{
 					activeSection: section1,
 					sections: document.querySelectorAll('h2[id^=section]'),
@@ -50,7 +55,7 @@ templ Gallery(gallery *config.GalleryConfig) {
 				<div class="inline full:hidden">
 					@mobileGalleryNav(gallery)
 				</div>
-				<main class="max-w-7xl p-6 grid grid-cols-79 gap-y-3 place-items-center">
+				<main class="p-6 grid grid-cols-79 gap-y-3 place-items-center">
 					{{ currentSection := 0 }}
 					for _, row := range gallery.Rows {
 						@galleryRow(row, currentSection)
@@ -182,7 +187,7 @@ templ galleryRow(row config.RowConfig, currentSection int) {
 	if row.Layout == config.LayoutSection {
 		@sectionHeader(row.Title, currentSection)
 	} else {
-		@imageRow(row, currentSection < 2)
+		@imageRow(row)
 	}
 }
 
@@ -198,7 +203,7 @@ templ sectionHeader(title string, currentSection int) {
 	</div>
 }
 
-templ imageRow(row config.RowConfig, highPriority bool) {
+templ imageRow(row config.RowConfig) {
 	{{ gridConfigs := getGridConfigs(row.Layout) }}
 	for i, image := range row.Images {
 		{{ imagePath := "/assets/images/" + image.File }}
@@ -223,11 +228,7 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 				@click="openFullscreen()"
 				@load="$el.style.opacity=1"
 				class="transition duration-300 opacity-0 cursor-pointer"
-				if highPriority {
-					fetchpriority="high"
-				}
-				loading="lazy"
-				src={ imagePath }
+				x-intersect.once.margin.200px={ "$el.src = '" + imagePath + "'" }
 				alt={ image.Alt }
 				width="1232"
 				height="820"
@@ -244,8 +245,7 @@ templ imageRow(row config.RowConfig, highPriority bool) {
 						x-transition:enter.duration.500ms
 						x-transition:leave.duration.400ms
 						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain touch-none"
-						loading="lazy"
-						src={ imagePath }
+						x-intersect.once={ "$el.src = '" + imagePath + "'" }
 						alt={ image.Alt }
 						width="1232"
 						height="820"
@@ -261,24 +261,17 @@ type GridConfig struct {
 	Span  string
 }
 
+var layoutGridConfigs = map[config.Layout][]GridConfig{
+	config.LayoutFull:      {{"1", "79"}},
+	config.LayoutHalf:      {{"1", "39"}, {"41", "39"}},
+	config.LayoutSplit:     {{"1", "54"}, {"56", "24"}},
+	config.LayoutFlipSplit: {{"1", "24"}, {"26", "54"}},
+	config.LayoutCenter:    {{"21", "39"}},
+}
+
 func getGridConfigs(layout config.Layout) []GridConfig {
-	// different layouts support different numbers of photos
-	// for now we just assume that there are the correct number of photos provided per row
-	// IsVert is used for width / height, which determines the background size before load
-	// just because IsVert is false here may not mean the photo is actually horizontal, the
-	// background with just render this way before loading in
-	switch layout {
-	case config.LayoutFull:
-		return []GridConfig{{"1", "79"}}
-	case config.LayoutHalf:
-		return []GridConfig{{"1", "39"}, {"41", "39"}}
-	case config.LayoutSplit:
-		return []GridConfig{{"1", "54"}, {"56", "24"}}
-	case config.LayoutFlipSplit:
-		return []GridConfig{{"1", "24"}, {"26", "54"}}
-	case config.LayoutCenter:
-		return []GridConfig{{"21", "39"}}
-	default:
-		return []GridConfig{}
+	if configs, ok := layoutGridConfigs[layout]; ok {
+		return configs
 	}
+	return []GridConfig{}
 }

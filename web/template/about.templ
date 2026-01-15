@@ -1,8 +1,10 @@
 package template
 
-templ About() {
+import "github.com/agiannif/adistantcloud/internal/config"
+
+templ About(galleries []config.GalleryMetadata) {
 	@page() {
-		@nav("/about", "a distant cloud")
+		@nav("/about", "a distant cloud", galleries)
 		<main class="max-w-7xl mx-auto my-6 p-6 text-lg">
 			<h2 class="text-4xl text-ef-light-fg mb-10">about</h2>
 			<p>

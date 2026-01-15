@@ -8,7 +8,8 @@ import (
 )
 
 type Galleries struct {
-	Galleries map[string]*config.GalleryConfig
+	Galleries     map[string]*config.GalleryConfig
+	GalleriesList []config.GalleryMetadata
 }
 
 func (g *Galleries) GalleryHandler(w http.ResponseWriter, r *http.Request) {
@@ -25,5 +26,5 @@ func (g *Galleries) GalleryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	template.Gallery(galleryConfig).Render(r.Context(), w)
+	template.Gallery(galleryConfig, g.GalleriesList).Render(r.Context(), w)
 }
