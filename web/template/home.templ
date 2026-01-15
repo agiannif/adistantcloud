@@ -10,11 +10,16 @@ templ Home(heroImage string, galleries []config.GalleryMetadata) {
 				a distant cloud
 			</h1>
 			if heroImage != "" {
-				<img
-					src={ "/assets/images/" + heroImage }
-					alt="A photograph from a distant cloud"
-					class="max-w-7xl w-full h-auto px-6 mb-12"
-				/>
+				<div class="max-w-7xl w-full px-6 mb-12">
+					<div x-data class="aspect-[3/2] bg-ef-light-bg-dim">
+						<img
+							src={ "/assets/images/" + heroImage }
+							@load="$el.style.opacity=1"
+							alt="A photograph from a distant cloud"
+							class="w-full h-full object-cover transition duration-300 opacity-0"
+						/>
+					</div>
+				</div>
 			}
 		</main>
 		@footer()

@@ -47,6 +47,18 @@ func navLinkClasses(isActive bool) map[string]bool {
 	}
 }
 
+func galleryLinkClasses(isActive bool) map[string]bool {
+	linkBaseClasses := "px-4 py-2 transition-colors duration-300 block"
+	activeLinkClasses := "text-ef-light-purple"
+	inactiveLinkClasses := "hover:text-ef-light-purple"
+
+	return map[string]bool{
+		linkBaseClasses:     true,
+		activeLinkClasses:   isActive,
+		inactiveLinkClasses: !isActive,
+	}
+}
+
 templ nav(currentPath, header string, galleries []config.GalleryMetadata) {
 	<nav
 		x-data="{ atTop: true, photosOpen: false }"
@@ -67,18 +79,14 @@ templ nav(currentPath, header string, galleries []config.GalleryMetadata) {
 					<div
 						x-show="photosOpen"
 						x-transition
-						class="absolute top-full left-0 mt-2 bg-ef-light-bg-dim drop-shadow-md rounded-sm min-w-48"
+						class="absolute top-full left-0 mt-2 bg-ef-light-bg-dim rounded-sm min-w-48"
 					>
 						<ul class="py-2">
 							for _, gallery := range galleries {
 								<li>
 									<a
+										class={ galleryLinkClasses(strings.HasSuffix(currentPath, gallery.ShortName)) }
 										href={ templ.URL("/gallery/" + gallery.ShortName) }
-										class={
-											"block px-4 py-2 transition-colors",
-											templ.KV("text-ef-light-purple", currentPath == "/gallery/"+gallery.ShortName),
-											templ.KV("hover:text-ef-light-purple", currentPath != "/gallery/"+gallery.ShortName),
-										}
 									>
 										{ gallery.Name }
 									</a>
