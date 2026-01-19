@@ -8,21 +8,108 @@ templ About(galleries []config.GalleryMetadata) {
 		<main class="max-w-7xl mx-auto my-6 p-6 text-lg">
 			<h2 class="text-4xl text-ef-light-fg mb-10">about</h2>
 			<p>
-				Hi there! Welcome to my site. I'm an engineer currently based in Seattle. I enjoy aviation, cycling,
-				photography, and reading, among other hobbies. I love taking what I've learned from one domain and applying
-				it to my work in other areas.
+				Hi there! Welcome to my site. I'm a photographer currently based in Seattle. This website features a selection of images I've taken throughout the years.
 			</p>
 			<br/>
-			<p>
-				This website features a selection of images I've taken throughout the years.
-			</p>
-			<br/>
-			<p>A more formal write-up of my professional experience can be found on my <a class="underline text-ef-light-blue" href="https://linkedin.com/in/anthony-fenzl/">LinkedIn page</a>.</p>
-			<p>Selected personal projects, including this website, can be found on my <a class="underline text-ef-light-blue" href="https://github.com/agiannif">Github page</a>.</p>
-			<p>For general inquiries or details about my professional work, feel free to reach out to me on LinkedIn!</p>
+			<p>In addition to photography, I also enjoy writing software. Selected personal projects, including this website, can be found on my <a class="underline text-ef-light-blue" href="https://github.com/agiannif">Github page</a>.</p>
+			<p>For general inquiries or details about my professional work, please reach out below.</p>
 			<br/>
 			<p>All the best,</p>
 			<p>Anthony</p>
+			<br/>
+			<h2 class="text-4xl text-ef-light-fg mb-6">get in touch</h2>
+			<div
+				x-data="{ submitting: false, success: false, error: false }"
+				class="max-w-2xl"
+			>
+				<form
+					@submit.prevent="
+					submitting = true;
+					success = false;
+					error = false;
+					const formData = new FormData($event.target);
+					const data = Object.fromEntries(formData);
+					fetch('https://adistant.cloud/skinnyform/send', {
+						method: 'POST',
+						headers: {'Content-Type': 'application/json'},
+						body: JSON.stringify(data)
+					})
+					.then(res => {
+						if (res.ok) {
+							success = true;
+							$event.target.reset();
+						} else {
+							error = true;
+							console.error('Server responded with:', res.status);
+						}
+					})
+					.catch(err => {
+						error = true;
+						console.error('Error submitting form:', err);
+					})
+					.finally(() => {
+						submitting = false;
+					});
+				"
+					class="flex flex-col gap-4 mt-4"
+				>
+					<div class="flex flex-col gap-2">
+						<label for="name" class="text-ef-light-fg">Name</label>
+						<input
+							type="text"
+							id="name"
+							name="name"
+							required
+							class="px-4 py-2 border border-ef-light-gray bg-ef-light-bg-dim rounded-sm focus:outline-none focus:border-ef-light-purple transition-colors"
+						/>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label for="email" class="text-ef-light-fg">Email</label>
+						<input
+							type="email"
+							id="email"
+							name="_replyto"
+							required
+							class="px-4 py-2 border border-ef-light-gray bg-ef-light-bg-dim rounded-sm focus:outline-none focus:border-ef-light-purple transition-colors"
+						/>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label for="message" class="text-ef-light-fg">Message</label>
+						<textarea
+							id="message"
+							name="message"
+							rows="6"
+							required
+							minlength="10"
+							class="px-4 py-2 border border-ef-light-gray bg-ef-light-bg-dim rounded-sm focus:outline-none focus:border-ef-light-purple transition-colors resize-y"
+						></textarea>
+					</div>
+					<input
+						type="text"
+						name="website"
+						id="website"
+						value=""
+						style="display:none"
+						tabindex="-1"
+						autocomplete="off"
+						aria-hidden="true"
+					/>
+					<button
+						type="submit"
+						:disabled="submitting"
+						class="px-6 py-3 bg-ef-light-fg text-ef-light-bg rounded-sm transition-opacity disabled:opacity-50 hover:opacity-90 w-full sm:w-auto"
+						x-text="submitting ? 'Sending...' : 'Send'"
+					>
+						Send
+					</button>
+					<div x-show="success" x-transition class="text-ef-light-green bg-ef-light-bg-green border border-ef-light-green px-4 py-3 rounded-sm">
+						Thanks for reaching out! I'll get back to you soon.
+					</div>
+					<div x-show="error" x-transition class="text-ef-light-red bg-ef-light-bg-red border border-ef-light-red px-4 py-3 rounded-sm">
+						Something went wrong. Please try again.
+					</div>
+				</form>
+			</div>
 		</main>
 		@footer()
 	}
