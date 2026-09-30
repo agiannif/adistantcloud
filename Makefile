@@ -5,6 +5,7 @@ all: help
 gen:
 	templ generate ./web/template
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.min.css --minify
+	go run ./cmd/assethash
 
 gen-tailwindcss:
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.css
@@ -30,6 +31,10 @@ clean:
 	rm -f web/template/*_templ.go
 	rm -f web/static/css/style.min.css
 	rm -f web/static/css/style.css
+	rm -f web/static/assets-manifest.json
+	rm -f web/static/css/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].css
+	rm -f web/static/script/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].js
+	rm -f web/static/images/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].png
 	rm -f bundle.tgz
 
 bundle: clean build-release-amd
@@ -51,7 +56,7 @@ help:
 	@echo "Usage: make [target]"
 	@echo "Targets:"
 	@echo "  all                  : help (default)"
-	@echo "  gen                  : generate tmpl and tailwind code"
+	@echo "  gen                  : generate templ, tailwind, and hashed asset files"
 	@echo "  gen-tailwindcss      : generate normal tailwind output for debugging"
 	@echo "  build                : compile the project"
 	@echo "  build-release        : compile without symbols"

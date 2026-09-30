@@ -50,5 +50,9 @@ go.work.sum
 # Tailwind output
 *.min.css
 
+# Content-hashed copies of static files and their manifest
+web/static/assets-manifest.json
+web/static/**/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].*
+
 # Templ output
 *_templ.go
