@@ -16,8 +16,8 @@ templ page() {
 			// style and fonts
 			<link rel="preload" href="/static/fonts/Grenze/Grenze-Light.woff2" as="font" type="font/woff2" crossorigin/>
 			<link rel="preload" href="/static/fonts/Atkinson_Hyperlegible_Next/AtkinsonHyperlegibleNext-Regular.woff2" as="font" type="font/woff2" crossorigin/>
-			<link rel="stylesheet" href="/static/css/fonts.css"/>
-			<link rel="stylesheet" href="/static/css/style.min.css"/>
+			<link rel="stylesheet" href={ AssetURL("css/fonts.css") }/>
+			<link rel="stylesheet" href={ AssetURL("css/style.min.css") }/>
 			// favicon configuration
 			<link rel="icon" type="image/png" href="/static/favicon/favicon-48x48.png" sizes="48x48"/>
 			<link rel="icon" type="image/svg+xml" href="/static/favicon/favicon.svg"/>
@@ -26,8 +26,8 @@ templ page() {
 			<meta name="apple-mobile-web-app-title" content="a distant cloud"/>
 			<link rel="manifest" href="/static/favicon/site.webmanifest"/>
 			// alpinejs
-			<script defer src="/static/script/alpinejs-intersect.min.js"></script>
-			<script defer src="/static/script/alpinejs.min.js"></script>
+			<script defer src={ AssetURL("script/alpinejs-intersect.min.js") }></script>
+			<script defer src={ AssetURL("script/alpinejs.min.js") }></script>
 		</head>
 		<body class="min-h-screen flex flex-col overflow-y-scroll bg-ef-light-bg-light">
 			{ children... }
@@ -127,7 +127,7 @@ templ footer() {
 					title <a class="inline underline" href="https://github.com/Omnibus-Type/Grenze">Grenze</a>, body <a class="inline underline" href="https://www.brailleinstitute.org/freefont/">Atkinson Hyperlegible Next</a>
 				</li>
 			</ul>
-			<img src="/static/images/large_clouds.png" alt="peaceful clouds" class="ml-auto size-1/2 translate-x-48"/>
+			<img src={ AssetURL("images/large_clouds.png") } alt="peaceful clouds" class="ml-auto size-1/2 translate-x-48"/>
 		</div>
 	</footer>
 }

@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/agiannif/adistantcloud/internal/assets"
 	"github.com/agiannif/adistantcloud/internal/config"
 	"github.com/agiannif/adistantcloud/internal/handlers"
+	"github.com/agiannif/adistantcloud/web/template"
 )
 
 const (
@@ -56,6 +58,13 @@ func main() {
 		slog.Warn("could not read home config", "error", err)
 		homeConfig = &config.HomeConfig{HeroImages: []string{}}
 	}
+
+	// Asset manifest is optional - without it pages reference unversioned static files
+	assetManifest, err := assets.LoadManifest("./web/static/assets-manifest.json")
+	if err != nil {
+		slog.Warn("could not read asset manifest, static files will not be versioned", "error", err)
+	}
+	template.SetAssetManifest(assetManifest)
 
 	galleriesList := getSortedGalleries(galleries)
 
