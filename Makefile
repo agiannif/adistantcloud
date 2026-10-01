@@ -49,14 +49,20 @@ clean: ## Remove build objects and caches
 	rm -f web/static/images/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].png
 	rm -f bundle.tgz
 
+# On macOS, tar stores extended attributes (the "Ignoring unknown extended header
+# keyword" warnings) and AppleDouble ._ files (stray ._name files) that a Linux host
+# does not want. COPYFILE_DISABLE stops the ._ files and --no-xattrs the attributes.
+# GNU tar understands --no-xattrs too, so this is safe to use on Linux.
+TAR := COPYFILE_DISABLE=1 tar --no-xattrs
+
 bundle: clean build-release-amd ## Create a tgz archive for easy shipping
-	tar -czf bundle.tgz assets/ configs/ adistantcloud web/static/
+	$(TAR) -czf bundle.tgz assets/ configs/ adistantcloud web/static/
 
 bundle-no-assets: clean build-release-amd ## Create a tgz archive without assets
-	tar -czf bundle.tgz configs/ adistantcloud web/static/
+	$(TAR) -czf bundle.tgz configs/ adistantcloud web/static/
 
 bundle-for-container: ## Create a tgz archive with only assets
-	tar -czf bundle.tgz assets/ configs/
+	$(TAR) -czf bundle.tgz assets/ configs/
 
 image: clean gen ## Build the docker image
 	docker build --platform=linux/amd64,linux/arm64 . -t agiannif/adistantcloud:latest
