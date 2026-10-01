@@ -88,9 +88,10 @@ func TestGalleryRendersResponsiveImages(t *testing.T) {
 		// real dimensions reserve the right amount of space
 		`width="2560" height="1707"`,
 		`width="1707" height="2560"`,
-		// the fullscreen viewer loads the largest variant
-		"$el.src = &#39;/assets/images/wide-2000.avif&#39;",
-		"$el.src = &#39;/assets/images/tall-1707.avif&#39;",
+		// every thumbnail names the largest variant for the fullscreen viewer
+		`data-fullscreen-src="/assets/images/first-2000.avif"`,
+		`data-fullscreen-src="/assets/images/wide-2000.avif"`,
+		`data-fullscreen-src="/assets/images/tall-1707.avif"`,
 	} {
 		if !strings.Contains(html, want) {
 			t.Errorf("rendered gallery does not contain %s", want)
@@ -105,10 +106,10 @@ func TestGalleryRendersResponsiveImages(t *testing.T) {
 		t.Errorf("rendered gallery has %d image cells that fill their grid track, want 3", got)
 	}
 
-	// every lazily loaded thumbnail and every fullscreen image is decoded off the
+	// every lazily loaded thumbnail and the fullscreen image are decoded off the
 	// main thread, the eagerly loaded first thumbnail is not
-	if got := strings.Count(html, `decoding="async"`); got != 5 {
-		t.Errorf(`rendered gallery has %d images with decoding="async", want 5`, got)
+	if got := strings.Count(html, `decoding="async"`); got != 3 {
+		t.Errorf(`rendered gallery has %d images with decoding="async", want 3`, got)
 	}
 }
 
@@ -240,5 +241,72 @@ func TestGalleryLoadsOnlyTheFirstImageEagerly(t *testing.T) {
 	}
 	if strings.Contains(html, "$el.srcset = &#39;/assets/images/first-") {
 		t.Error("the first image must not also be loaded lazily")
+	}
+}
+
+func TestGalleryHasOneSharedFullscreenViewer(t *testing.T) {
+	gallery := &config.GalleryConfig{
+		Metadata: config.GalleryMetadata{Name: "Test", ShortName: "test"},
+		Rows: []config.RowConfig{
+			{Layout: config.LayoutSection, Title: "section"},
+			{Layout: config.LayoutHalf, Images: []config.ImageConfig{
+				{Name: "a", Alt: "photo a", Width: 2560, Height: 1707},
+				{Name: "b", Alt: "photo b", Width: 2560, Height: 1707},
+			}},
+			{Layout: config.LayoutFull, Images: []config.ImageConfig{{Name: "c", Alt: "photo c", Width: 2560, Height: 1707}}},
+		},
+	}
+
+	var page bytes.Buffer
+	if err := Gallery(gallery, nil).Render(context.Background(), &page); err != nil {
+		t.Fatal(err)
+	}
+	html := page.String()
+
+	// one overlay for the whole gallery, not one per image
+	if got := strings.Count(html, "fixed inset-0 z-50"); got != 1 {
+		t.Errorf("found %d fullscreen overlays, want 1", got)
+	}
+	for _, gone := range []string{"x-teleport", "isFullscreen", "openFullscreen", "closeFullscreen"} {
+		if strings.Contains(html, gone) {
+			t.Errorf("rendered gallery still contains %s from the per-image viewer", gone)
+		}
+	}
+
+	// every thumbnail, the eager one included, opens the shared viewer
+	if got := strings.Count(html, `@click="openViewer($el)"`); got != 3 {
+		t.Errorf("%d thumbnails open the viewer, want 3", got)
+	}
+
+	// the overlay is hidden until Alpine shows it, closes on click and on Escape,
+	// and shows whichever image was opened
+	for _, want := range []string{
+		`x-show="viewer.open"`,
+		"x-cloak",
+		`@click="closeViewer()"`,
+		`@keyup.escape.window="closeViewer()"`,
+		`:src="viewer.src"`,
+		`:alt="viewer.alt"`,
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("rendered gallery does not contain %s", want)
+		}
+	}
+
+	// scrolling is locked in one place, shared by the viewer and the mobile nav, so
+	// closing one cannot unlock the page while the other is open
+	for _, want := range []string{"lockScroll()", "unlockScroll()"} {
+		if !strings.Contains(html, want) {
+			t.Errorf("rendered gallery does not contain %s", want)
+		}
+	}
+	if got := strings.Count(html, "document.body.classList.add("); got != 1 {
+		t.Errorf("body scroll lock is applied in %d places, want 1", got)
+	}
+	if got := strings.Count(html, "document.body.classList.remove("); got != 1 {
+		t.Errorf("body scroll lock is released in %d places, want 1", got)
+	}
+	if strings.Contains(html, "document.body.style") {
+		t.Error("body scroll lock should use classes, not inline styles")
 	}
 }

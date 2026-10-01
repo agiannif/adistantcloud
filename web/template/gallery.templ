@@ -36,14 +36,39 @@ templ Gallery(gallery *config.GalleryConfig, galleries []config.GalleryMetadata)
             this.activeSection = sectionsByDistanceFromTop[closestNegativeTop].id
 					},
 					toggleMobileGalleryNav() {
-					  this.galleryNavExpanded = !this.galleryNavExpanded;
-						if (this.galleryNavExpanded) {
-						  document.body.classList.add('h-full');
-						  document.body.classList.add('overflow-y-hidden');
-						} else {
-						  document.body.classList.remove('h-full');
-						  document.body.classList.remove('overflow-y-hidden');
+						this.galleryNavExpanded = !this.galleryNavExpanded;
+						this.galleryNavExpanded ? this.lockScroll() : this.unlockScroll();
+					},
+					// Scrolling stays locked while anything holds a lock, so closing the nav
+					// cannot unlock the page under an open viewer, or the reverse.
+					scrollLocks: 0,
+					lockScroll() {
+						if (this.scrollLocks++ === 0) {
+							document.body.classList.add('h-full', 'overflow-y-hidden');
 						}
+					},
+					unlockScroll() {
+						if (--this.scrollLocks === 0) {
+							document.body.classList.remove('h-full', 'overflow-y-hidden');
+						}
+					},
+					// Fullscreen viewer shared by every image: a thumbnail names its largest
+					// variant in data-fullscreen-src.
+					viewer: { open: false, src: null, alt: '' },
+					viewerHideTimer: null,
+					openViewer(image) {
+						if (this.viewer.open) return;
+						clearTimeout(this.viewerHideTimer);
+						this.viewer = { open: true, src: image.dataset.fullscreenSrc, alt: image.alt };
+						this.lockScroll();
+					},
+					closeViewer() {
+						if (!this.viewer.open) return;
+						this.viewer.open = false;
+						this.unlockScroll();
+						// keep the image until the leave transition ends so it fades out, then drop it
+						// so the next photo does not flash the previous one
+						this.viewerHideTimer = setTimeout(() => { this.viewer.src = null }, 450);
 					}
 				}"
 				x-init="updateGalleryNav()"
@@ -66,6 +91,24 @@ templ Gallery(gallery *config.GalleryConfig, galleries []config.GalleryMetadata)
 					}
 					@goToTopButton()
 				</main>
+				// fullscreen viewer, shared by every image
+				<div
+					x-show="viewer.open"
+					x-cloak
+					@click="closeViewer()"
+					@keyup.escape.window="closeViewer()"
+					class="fixed inset-0 z-50 cursor-pointer bg-white/[.98] touch-none"
+				>
+					<img
+						x-show="viewer.open"
+						x-transition:enter.duration.500ms
+						x-transition:leave.duration.400ms
+						:src="viewer.src"
+						:alt="viewer.alt"
+						decoding="async"
+						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain touch-none"
+					/>
+				</div>
 			</div>
 		</div>
 		@footer()
@@ -216,20 +259,6 @@ templ imageRow(row config.RowConfig, hasFirstImage bool) {
 		{{ sizes := imageSizes(gridConfigs[i].Span) }}
 		{{ fullscreenSrc := largestImageURL(image) }}
 		<div
-			x-data="{
-			  isFullscreen: false,
-				openFullscreen() {
-				  this.isFullscreen = true;
-					document.body.style.overflow = 'hidden';
-					document.body.style.height = '100%';
-				},
-				closeFullscreen() {
-				  this.isFullscreen = false;
-					document.body.style.height = '';
-					setTimeout(() => { document.body.style.overflow = ''; }, 100);
-				}
-			}"
-			@keyup.escape.window="closeFullscreen()"
 			class={ "md:col-span-" + gridConfigs[i].Span + " md:col-start-" + gridConfigs[i].Start + " col-span-79 col-start-1 bg-ef-light-bg-dim w-full" }
 		>
 			if eager {
@@ -237,7 +266,8 @@ templ imageRow(row config.RowConfig, hasFirstImage bool) {
 				// in like the others, but may finish loading before Alpine attaches its
 				// load handler, so Alpine also checks on init whether it already has.
 				<img
-					@click="openFullscreen()"
+					@click="openViewer($el)"
+					data-fullscreen-src={ fullscreenSrc }
 					@load="$el.style.opacity=1"
 					x-init="if ($el.complete) $el.style.opacity = 1"
 					class="transition duration-300 opacity-0 cursor-pointer"
@@ -250,7 +280,8 @@ templ imageRow(row config.RowConfig, hasFirstImage bool) {
 				/>
 			} else {
 				<img
-					@click="openFullscreen()"
+					@click="openViewer($el)"
+					data-fullscreen-src={ fullscreenSrc }
 					@load="$el.style.opacity=1"
 					class="transition duration-300 opacity-0 cursor-pointer"
 					x-intersect.once.margin.200px={ "$el.srcset = '" + srcset + "'" }
@@ -261,26 +292,6 @@ templ imageRow(row config.RowConfig, hasFirstImage bool) {
 					height={ strconv.Itoa(image.Height) }
 				/>
 			}
-			// fullscreen overlay
-			<template x-teleport="body">
-				<div
-					x-show="isFullscreen"
-					@click="closeFullscreen()"
-					class="fixed inset-0 z-50 cursor-pointer bg-white/[.98] touch-none"
-				>
-					<img
-						x-show="isFullscreen"
-						x-transition:enter.duration.500ms
-						x-transition:leave.duration.400ms
-						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain touch-none"
-						x-intersect.once={ "$el.src = '" + fullscreenSrc + "'" }
-						decoding="async"
-						alt={ image.Alt }
-						width={ strconv.Itoa(image.Width) }
-						height={ strconv.Itoa(image.Height) }
-					/>
-				</div>
-			</template>
 		</div>
 	}
 }
