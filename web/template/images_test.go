@@ -210,9 +210,22 @@ func TestGalleryLoadsOnlyTheFirstImageEagerly(t *testing.T) {
 		}
 	}
 
-	// it may finish loading before Alpine starts, so it must not wait for Alpine's
-	// load handler to become visible, and it needs no lazy loading
-	for _, unwanted := range []string{"opacity-0", "x-intersect", "decoding="} {
+	// it fades in like every other image. It may finish loading before Alpine
+	// attaches its load handler, so Alpine also checks on init whether the image
+	// has already loaded; without that it would stay invisible
+	for _, want := range []string{
+		"opacity-0",
+		"transition duration-300",
+		`@load="$el.style.opacity=1"`,
+		`x-init="if ($el.complete) $el.style.opacity = 1"`,
+	} {
+		if !strings.Contains(eager, want) {
+			t.Errorf("eager image %s does not contain %s", eager, want)
+		}
+	}
+
+	// it needs no lazy loading, and is not decoded asynchronously, like the hero
+	for _, unwanted := range []string{"x-intersect", "decoding="} {
 		if strings.Contains(eager, unwanted) {
 			t.Errorf("eager image %s should not contain %s", eager, unwanted)
 		}

@@ -233,11 +233,14 @@ templ imageRow(row config.RowConfig, hasFirstImage bool) {
 			class={ "md:col-span-" + gridConfigs[i].Span + " md:col-start-" + gridConfigs[i].Start + " col-span-79 col-start-1 bg-ef-light-bg-dim w-full" }
 		>
 			if eager {
-				// in the markup so the browser fetches it before any script runs, and
-				// visible without waiting for Alpine's load handler
+				// in the markup so the browser fetches it before any script runs. It fades
+				// in like the others, but may finish loading before Alpine attaches its
+				// load handler, so Alpine also checks on init whether it already has.
 				<img
 					@click="openFullscreen()"
-					class="cursor-pointer"
+					@load="$el.style.opacity=1"
+					x-init="if ($el.complete) $el.style.opacity = 1"
+					class="transition duration-300 opacity-0 cursor-pointer"
 					srcset={ srcset }
 					sizes={ sizes }
 					fetchpriority="high"
