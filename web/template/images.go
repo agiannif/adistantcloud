@@ -2,6 +2,7 @@ package template
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -45,4 +46,10 @@ func imageSizes(span string) string {
 	}
 	share := float64(columns) / gridColumns
 	return fmt.Sprintf("(min-width: 48rem) calc(min(100vw, 80rem) * %.2f), 100vw", share)
+}
+
+// firstImageRowIndex returns the index of the first row that has images, or -1
+// when no row does.
+func firstImageRowIndex(rows []config.RowConfig) int {
+	return slices.IndexFunc(rows, func(row config.RowConfig) bool { return len(row.Images) > 0 })
 }

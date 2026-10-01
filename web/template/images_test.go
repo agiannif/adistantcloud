@@ -3,6 +3,7 @@ package template
 import (
 	"bytes"
 	"context"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -61,6 +62,8 @@ func TestGalleryRendersResponsiveImages(t *testing.T) {
 	gallery := &config.GalleryConfig{
 		Metadata: config.GalleryMetadata{Name: "Test", ShortName: "test"},
 		Rows: []config.RowConfig{
+			// the first image is loaded eagerly, so the lazy markup is checked on later rows
+			{Layout: config.LayoutFull, Images: []config.ImageConfig{{Name: "first", Width: 2560, Height: 1707}}},
 			{
 				Layout: config.LayoutSplit,
 				Images: []config.ImageConfig{
@@ -98,13 +101,14 @@ func TestGalleryRendersResponsiveImages(t *testing.T) {
 	// it sizes itself from its width attribute; a cell that shrink-wraps it would
 	// be as wide as the original, overflow the page, and make lazy loading think
 	// the viewport is huge.
-	if got := strings.Count(html, "bg-ef-light-bg-dim w-full"); got != 2 {
-		t.Errorf("rendered gallery has %d image cells that fill their grid track, want 2", got)
+	if got := strings.Count(html, "bg-ef-light-bg-dim w-full"); got != 3 {
+		t.Errorf("rendered gallery has %d image cells that fill their grid track, want 3", got)
 	}
 
-	// every thumbnail and every fullscreen image is decoded off the main thread
-	if got := strings.Count(html, `decoding="async"`); got != 4 {
-		t.Errorf(`rendered gallery has %d images with decoding="async", want 4`, got)
+	// every lazily loaded thumbnail and every fullscreen image is decoded off the
+	// main thread, the eagerly loaded first thumbnail is not
+	if got := strings.Count(html, `decoding="async"`); got != 5 {
+		t.Errorf(`rendered gallery has %d images with decoding="async", want 5`, got)
 	}
 }
 
@@ -143,5 +147,85 @@ func TestHomeWithoutHeroImageRendersNoImage(t *testing.T) {
 
 	if strings.Contains(page.String(), "/assets/images/") {
 		t.Error("home page without a hero image should not reference any gallery image")
+	}
+}
+
+func TestFirstImageRowIndex(t *testing.T) {
+	images := []config.ImageConfig{{Name: "a", Width: 10, Height: 5}}
+	tests := []struct {
+		name string
+		rows []config.RowConfig
+		want int
+	}{
+		{"no rows", nil, -1},
+		{"only section headers", []config.RowConfig{{Layout: config.LayoutSection}, {Layout: config.LayoutSection}}, -1},
+		{"first row has images", []config.RowConfig{{Layout: config.LayoutFull, Images: images}}, 0},
+		{"skips a leading section header", []config.RowConfig{{Layout: config.LayoutSection}, {Layout: config.LayoutHalf, Images: images}}, 1},
+		{"skips a row without images", []config.RowConfig{{Layout: config.LayoutFull}, {Layout: config.LayoutFull, Images: images}}, 1},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := firstImageRowIndex(tt.rows); got != tt.want {
+				t.Errorf("firstImageRowIndex = %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGalleryLoadsOnlyTheFirstImageEagerly(t *testing.T) {
+	gallery := &config.GalleryConfig{
+		Metadata: config.GalleryMetadata{Name: "Test", ShortName: "test"},
+		Rows: []config.RowConfig{
+			{Layout: config.LayoutSection, Title: "first section"},
+			{Layout: config.LayoutHalf, Images: []config.ImageConfig{
+				{Name: "first", Alt: "first photo", Width: 2560, Height: 1707},
+				{Name: "second", Alt: "second photo", Width: 2560, Height: 1707},
+			}},
+			{Layout: config.LayoutFull, Images: []config.ImageConfig{{Name: "third", Width: 2560, Height: 1707}}},
+		},
+	}
+
+	var page bytes.Buffer
+	if err := Gallery(gallery, nil).Render(context.Background(), &page); err != nil {
+		t.Fatal(err)
+	}
+	html := page.String()
+
+	// the first image is in the markup, so the browser can start fetching it
+	// before any script runs, and it is fetched ahead of everything else
+	tags := regexp.MustCompile(`<img [^>]*fetchpriority="high"[^>]*>`).FindAllString(html, -1)
+	if len(tags) != 1 {
+		t.Fatalf("found %d images with fetchpriority=high, want exactly the first", len(tags))
+	}
+	eager := tags[0]
+	for _, want := range []string{
+		`srcset="/assets/images/first-640.avif 640w, /assets/images/first-1280.avif 1280w, /assets/images/first-2000.avif 2000w"`,
+		`sizes="(min-width: 48rem) calc(min(100vw, 80rem) * 0.49), 100vw"`,
+		`alt="first photo"`,
+		`width="2560" height="1707"`,
+	} {
+		if !strings.Contains(eager, want) {
+			t.Errorf("eager image %s does not contain %s", eager, want)
+		}
+	}
+
+	// it may finish loading before Alpine starts, so it must not wait for Alpine's
+	// load handler to become visible, and it needs no lazy loading
+	for _, unwanted := range []string{"opacity-0", "x-intersect", "decoding="} {
+		if strings.Contains(eager, unwanted) {
+			t.Errorf("eager image %s should not contain %s", eager, unwanted)
+		}
+	}
+
+	// every other thumbnail stays lazily loaded
+	for _, name := range []string{"second", "third"} {
+		want := "$el.srcset = &#39;/assets/images/" + name + "-640.avif"
+		if !strings.Contains(html, want) {
+			t.Errorf("%s is not lazily loaded, rendered gallery does not contain %s", name, want)
+		}
+	}
+	if strings.Contains(html, "$el.srcset = &#39;/assets/images/first-") {
+		t.Error("the first image must not also be loaded lazily")
 	}
 }

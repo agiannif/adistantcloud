@@ -57,8 +57,9 @@ templ Gallery(gallery *config.GalleryConfig, galleries []config.GalleryMetadata)
 				</div>
 				<main class="p-6 grid grid-cols-79 gap-y-3 place-items-center">
 					{{ currentSection := 0 }}
-					for _, row := range gallery.Rows {
-						@galleryRow(row, currentSection)
+					{{ firstImageRow := firstImageRowIndex(gallery.Rows) }}
+					for i, row := range gallery.Rows {
+						@galleryRow(row, currentSection, i == firstImageRow)
 						if row.Layout == config.LayoutSection {
 							{{ currentSection++ }}
 						}
@@ -184,11 +185,11 @@ templ goToTopButton() {
 	</div>
 }
 
-templ galleryRow(row config.RowConfig, currentSection int) {
+templ galleryRow(row config.RowConfig, currentSection int, hasFirstImage bool) {
 	if row.Layout == config.LayoutSection {
 		@sectionHeader(row.Title, currentSection)
 	} else {
-		@imageRow(row)
+		@imageRow(row, hasFirstImage)
 	}
 }
 
@@ -204,9 +205,13 @@ templ sectionHeader(title string, currentSection int) {
 	</div>
 }
 
-templ imageRow(row config.RowConfig) {
+// imageRow renders a row of images. The first image of the gallery is loaded
+// eagerly, as it is the largest thing on screen when the page opens; every other
+// image is loaded as it nears the viewport.
+templ imageRow(row config.RowConfig, hasFirstImage bool) {
 	{{ gridConfigs := getGridConfigs(row.Layout) }}
 	for i, image := range row.Images {
+		{{ eager := hasFirstImage && i == 0 }}
 		{{ srcset := imageSrcset(image) }}
 		{{ sizes := imageSizes(gridConfigs[i].Span) }}
 		{{ fullscreenSrc := largestImageURL(image) }}
@@ -227,17 +232,32 @@ templ imageRow(row config.RowConfig) {
 			@keyup.escape.window="closeFullscreen()"
 			class={ "md:col-span-" + gridConfigs[i].Span + " md:col-start-" + gridConfigs[i].Start + " col-span-79 col-start-1 bg-ef-light-bg-dim w-full" }
 		>
-			<img
-				@click="openFullscreen()"
-				@load="$el.style.opacity=1"
-				class="transition duration-300 opacity-0 cursor-pointer"
-				x-intersect.once.margin.200px={ "$el.srcset = '" + srcset + "'" }
-				sizes={ sizes }
-				decoding="async"
-				alt={ image.Alt }
-				width={ strconv.Itoa(image.Width) }
-				height={ strconv.Itoa(image.Height) }
-			/>
+			if eager {
+				// in the markup so the browser fetches it before any script runs, and
+				// visible without waiting for Alpine's load handler
+				<img
+					@click="openFullscreen()"
+					class="cursor-pointer"
+					srcset={ srcset }
+					sizes={ sizes }
+					fetchpriority="high"
+					alt={ image.Alt }
+					width={ strconv.Itoa(image.Width) }
+					height={ strconv.Itoa(image.Height) }
+				/>
+			} else {
+				<img
+					@click="openFullscreen()"
+					@load="$el.style.opacity=1"
+					class="transition duration-300 opacity-0 cursor-pointer"
+					x-intersect.once.margin.200px={ "$el.srcset = '" + srcset + "'" }
+					sizes={ sizes }
+					decoding="async"
+					alt={ image.Alt }
+					width={ strconv.Itoa(image.Width) }
+					height={ strconv.Itoa(image.Height) }
+				/>
+			}
 			// fullscreen overlay
 			<template x-teleport="body">
 				<div
