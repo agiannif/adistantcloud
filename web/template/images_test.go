@@ -293,6 +293,26 @@ func TestGalleryHasOneSharedFullscreenViewer(t *testing.T) {
 		}
 	}
 
+	// The viewer image is centred by layout, not by percentage translates, and it
+	// knows its size from the first frame. Percentage translates depend on the
+	// element's own size, and a transition can keep using the size the element had
+	// when it started: with no size until the image arrives, the picture sat in the
+	// bottom right of a phone until the fade finished and then jumped into place.
+	for _, want := range []string{
+		"flex items-center justify-center",
+		`:width="viewer.width"`,
+		`:height="viewer.height"`,
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("rendered gallery does not contain %s", want)
+		}
+	}
+	for _, gone := range []string{"-translate-x-1/2", "-translate-y-1/2", "top-1/2", "left-1/2"} {
+		if strings.Contains(html, gone) {
+			t.Errorf("the viewer image should not be positioned with %s", gone)
+		}
+	}
+
 	// scrolling is locked in one place, shared by the viewer and the mobile nav, so
 	// closing one cannot unlock the page while the other is open
 	for _, want := range []string{"lockScroll()", "unlockScroll()"} {

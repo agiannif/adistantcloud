@@ -54,12 +54,12 @@ templ Gallery(gallery *config.GalleryConfig, galleries []config.GalleryMetadata)
 					},
 					// Fullscreen viewer shared by every image: a thumbnail names its largest
 					// variant in data-fullscreen-src.
-					viewer: { open: false, src: null, alt: '' },
+					viewer: { open: false, src: null, alt: '', width: null, height: null },
 					viewerHideTimer: null,
 					openViewer(image) {
 						if (this.viewer.open) return;
 						clearTimeout(this.viewerHideTimer);
-						this.viewer = { open: true, src: image.dataset.fullscreenSrc, alt: image.alt };
+						this.viewer = { open: true, src: image.dataset.fullscreenSrc, alt: image.alt, width: image.getAttribute('width'), height: image.getAttribute('height') };
 						this.lockScroll();
 					},
 					closeViewer() {
@@ -97,7 +97,7 @@ templ Gallery(gallery *config.GalleryConfig, galleries []config.GalleryMetadata)
 					x-cloak
 					@click="closeViewer()"
 					@keyup.escape.window="closeViewer()"
-					class="fixed inset-0 z-50 cursor-pointer bg-white/[.98] touch-none"
+					class="fixed inset-0 z-50 flex items-center justify-center cursor-pointer bg-white/[.98] touch-none"
 				>
 					<img
 						x-show="viewer.open"
@@ -105,8 +105,10 @@ templ Gallery(gallery *config.GalleryConfig, galleries []config.GalleryMetadata)
 						x-transition:leave.duration.400ms
 						:src="viewer.src"
 						:alt="viewer.alt"
+						:width="viewer.width"
+						:height="viewer.height"
 						decoding="async"
-						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain touch-none"
+						class="max-h-screen max-w-screen object-contain touch-none"
 					/>
 				</div>
 			</div>
