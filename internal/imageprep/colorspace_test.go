@@ -102,7 +102,7 @@ func TestGenerateVariantsRefusesANonSRGBOriginal(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err := GenerateVariants(path, out, 50, false)
+	_, err := GenerateVariants(path, out, testOptions)
 
 	if err == nil {
 		t.Fatal("expected an error for a Display P3 original")

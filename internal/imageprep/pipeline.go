@@ -10,8 +10,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"slices"
+	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/image/draw"
@@ -29,9 +33,42 @@ func Resize(src image.Image, width int) image.Image {
 	return resized
 }
 
+// Options controls how originals are turned into AVIF variants.
+type Options struct {
+	// Quality is the AVIF quality from 0 to 100, where 100 is lossless.
+	Quality int
+	// Speed is the avifenc encoder speed from 0, the slowest and best compressing,
+	// to 10.
+	Speed int
+	// Threads is how many threads each avifenc process may use. Zero lets avifenc
+	// use every core, or lets GenerateAll divide the cores between its jobs.
+	Threads int
+	// Force regenerates variants that are already up to date.
+	Force bool
+	// Jobs is how many originals GenerateAll processes at once. Zero means one.
+	Jobs int
+}
+
+// validate rejects values avifenc would silently clamp or misread.
+func (o Options) validate() error {
+	switch {
+	case o.Quality < 0 || o.Quality > 100:
+		return fmt.Errorf("quality must be between 0 and 100, got %d", o.Quality)
+	case o.Speed < 0 || o.Speed > 10:
+		return fmt.Errorf("speed must be between 0 and 10, got %d", o.Speed)
+	case o.Threads < 0:
+		return fmt.Errorf("threads must not be negative, got %d", o.Threads)
+	case o.Jobs < 0:
+		return fmt.Errorf("jobs must not be negative, got %d", o.Jobs)
+	}
+	return nil
+}
+
 // EncodeAVIF writes img to path as an AVIF using the avifenc command-line tool.
-// Quality is 0 to 100, where 100 is lossless.
-func EncodeAVIF(img image.Image, path string, quality int) error {
+func EncodeAVIF(img image.Image, path string, options Options) error {
+	if err := options.validate(); err != nil {
+		return err
+	}
 	avifenc, err := exec.LookPath("avifenc")
 	if err != nil {
 		return errors.New("avifenc not found on PATH, install libavif (brew install libavif, apt install libavif-bin)")
@@ -53,7 +90,11 @@ func EncodeAVIF(img image.Image, path string, quality int) error {
 		return fmt.Errorf("failed to write temporary PNG: %w", err)
 	}
 
-	output, err := exec.Command(avifenc, "-q", fmt.Sprint(quality), intermediate.Name(), path).CombinedOutput()
+	args := []string{"-q", strconv.Itoa(options.Quality), "-s", strconv.Itoa(options.Speed)}
+	if options.Threads != 0 {
+		args = append(args, "-j", strconv.Itoa(options.Threads))
+	}
+	output, err := exec.Command(avifenc, append(args, intermediate.Name(), path)...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("avifenc failed for %s: %w\n%s", path, err, output)
 	}
@@ -93,8 +134,8 @@ type Result struct {
 
 // GenerateVariants writes every AVIF variant of the original at path into
 // outputDir. Variants that exist and are newer than the original are left alone
-// unless force is set.
-func GenerateVariants(path, outputDir string, quality int, force bool) (Result, error) {
+// unless options.Force is set.
+func GenerateVariants(path, outputDir string, options Options) (Result, error) {
 	data, err := readOriginal(path)
 	if err != nil {
 		return Result{}, err
@@ -111,7 +152,7 @@ func GenerateVariants(path, outputDir string, quality int, force bool) (Result, 
 	name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 	result := Result{Name: name, Dimensions: Dimensions{Width: header.Width, Height: header.Height}}
 	widths := images.Widths(header.Width)
-	if !force && variantsUpToDate(info.ModTime(), outputDir, name, widths) {
+	if !options.Force && variantsUpToDate(info.ModTime(), outputDir, name, widths) {
 		return result, nil
 	}
 
@@ -124,12 +165,66 @@ func GenerateVariants(path, outputDir string, quality int, force bool) (Result, 
 		if width != header.Width {
 			variant = Resize(original, width)
 		}
-		if err := EncodeAVIF(variant, filepath.Join(outputDir, images.Filename(name, width)), quality); err != nil {
+		if err := EncodeAVIF(variant, filepath.Join(outputDir, images.Filename(name, width)), options); err != nil {
 			return Result{}, err
 		}
 	}
 	result.Generated = true
 	return result, nil
+}
+
+// GenerateAll runs GenerateVariants for every path, processing options.Jobs
+// originals at once, and returns the results in the order of paths. onResult, if
+// not nil, is called once per original as it finishes and never from two
+// goroutines at the same time. After the first failure no further originals are
+// started and that failure is returned.
+func GenerateAll(paths []string, outputDir string, options Options, onResult func(Result)) ([]Result, error) {
+	jobs := min(max(options.Jobs, 1), max(len(paths), 1))
+	if options.Threads == 0 && jobs > 1 {
+		// share the cores between the concurrent encoders instead of oversubscribing them
+		options.Threads = max(1, runtime.NumCPU()/jobs)
+	}
+
+	indexes := make(chan int, len(paths))
+	for i := range paths {
+		indexes <- i
+	}
+	close(indexes)
+
+	var (
+		results  = make([]Result, len(paths))
+		mu       sync.Mutex
+		firstErr error
+		failed   atomic.Bool
+		wg       sync.WaitGroup
+	)
+	for range jobs {
+		wg.Go(func() {
+			for i := range indexes {
+				if failed.Load() {
+					continue
+				}
+				result, err := GenerateVariants(paths[i], outputDir, options)
+
+				mu.Lock()
+				if err != nil {
+					if firstErr == nil {
+						firstErr = err
+					}
+					failed.Store(true)
+				} else {
+					results[i] = result
+					if onResult != nil {
+						onResult(result)
+					}
+				}
+				mu.Unlock()
+			}
+		})
+	}
+	wg.Wait()
+
+	return results, firstErr
 }
 
 // variantsUpToDate reports whether every variant exists and is at least as new as

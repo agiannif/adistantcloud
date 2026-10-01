@@ -10,12 +10,14 @@ gen: ## Generate templ, tailwind, and hashed asset files
 # generates AVIF variants of the PNGs in ORIGINALS_DIR that are new or changed and
 # records their dimensions in the gallery configs, requires avifenc (see
 # readme.adoc). Set FORCE=1 to regenerate everything, for example after changing
-# AVIF_QUALITY.
+# AVIF_QUALITY or AVIF_SPEED. JOBS is how many photos are processed at once and
+# defaults to the number of cores.
 ORIGINALS_DIR ?= originals
 AVIF_QUALITY ?= 50
+AVIF_SPEED ?= 6
 
-photos: ## Generate AVIF variants of photos (ORIGINALS_DIR, AVIF_QUALITY=50, FORCE=1)
-	go run ./cmd/imgprep -originals $(ORIGINALS_DIR) -quality $(AVIF_QUALITY) $(if $(FORCE),-force)
+photos: ## Generate AVIF variants of photos (ORIGINALS_DIR, AVIF_QUALITY=50, AVIF_SPEED=6, JOBS, FORCE=1)
+	go run ./cmd/imgprep -originals $(ORIGINALS_DIR) -quality $(AVIF_QUALITY) -speed $(AVIF_SPEED) $(if $(JOBS),-jobs $(JOBS)) $(if $(FORCE),-force)
 
 gen-tailwindcss: ## Generate normal tailwind output for debugging
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.css

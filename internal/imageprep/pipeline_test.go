@@ -1,6 +1,7 @@
 package imageprep
 
 import (
+	"bytes"
 	"image"
 	"image/color"
 	"image/png"
@@ -82,7 +83,7 @@ func TestEncodeAVIFWritesAnAVIFFile(t *testing.T) {
 	requireAvifenc(t)
 	path := filepath.Join(t.TempDir(), "out.avif")
 
-	if err := EncodeAVIF(gradient(64, 48), path, 50); err != nil {
+	if err := EncodeAVIF(gradient(64, 48), path, testOptions); err != nil {
 		t.Fatal(err)
 	}
 
@@ -100,10 +101,10 @@ func TestEncodeAVIFLowerQualityIsSmaller(t *testing.T) {
 	dir := t.TempDir()
 	img := gradient(256, 256)
 
-	if err := EncodeAVIF(img, filepath.Join(dir, "high.avif"), 90); err != nil {
+	if err := EncodeAVIF(img, filepath.Join(dir, "high.avif"), Options{Quality: 90, Speed: 6}); err != nil {
 		t.Fatal(err)
 	}
-	if err := EncodeAVIF(img, filepath.Join(dir, "low.avif"), 10); err != nil {
+	if err := EncodeAVIF(img, filepath.Join(dir, "low.avif"), Options{Quality: 10, Speed: 6}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -118,7 +119,7 @@ func TestEncodeAVIFErrorsWhenOutputDirectoryIsMissing(t *testing.T) {
 	requireAvifenc(t)
 	path := filepath.Join(t.TempDir(), "missing", "out.avif")
 
-	if err := EncodeAVIF(gradient(64, 48), path, 50); err == nil {
+	if err := EncodeAVIF(gradient(64, 48), path, testOptions); err == nil {
 		t.Error("expected an error when the output directory does not exist")
 	}
 }
@@ -126,7 +127,7 @@ func TestEncodeAVIFErrorsWhenOutputDirectoryIsMissing(t *testing.T) {
 func TestEncodeAVIFErrorsClearlyWhenAvifencIsNotInstalled(t *testing.T) {
 	t.Setenv("PATH", t.TempDir())
 
-	err := EncodeAVIF(gradient(64, 48), filepath.Join(t.TempDir(), "out.avif"), 50)
+	err := EncodeAVIF(gradient(64, 48), filepath.Join(t.TempDir(), "out.avif"), testOptions)
 
 	if err == nil || !strings.Contains(err.Error(), "avifenc") {
 		t.Errorf("error = %v, want one that mentions avifenc", err)
@@ -176,7 +177,7 @@ func TestGenerateVariantsWritesEveryWidthAndReturnsDimensions(t *testing.T) {
 	path := filepath.Join(originals, "wide.png")
 	writePNG(t, path, gradient(800, 400))
 
-	result, err := GenerateVariants(path, out, 50, false)
+	result, err := GenerateVariants(path, out, testOptions)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -202,7 +203,7 @@ func TestGenerateVariantsNeverUpscales(t *testing.T) {
 	path := filepath.Join(originals, "small.png")
 	writePNG(t, path, gradient(300, 600))
 
-	if _, err := GenerateVariants(path, out, 50, false); err != nil {
+	if _, err := GenerateVariants(path, out, testOptions); err != nil {
 		t.Fatal(err)
 	}
 
@@ -219,7 +220,7 @@ func TestGenerateVariantsErrorsNamingAnInvalidPNG(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err := GenerateVariants(path, t.TempDir(), 50, false)
+	_, err := GenerateVariants(path, t.TempDir(), testOptions)
 
 	if err == nil || !strings.Contains(err.Error(), "broken.png") {
 		t.Errorf("error = %v, want one naming broken.png", err)
@@ -317,7 +318,7 @@ func generatedFixture(t *testing.T) (original, out, variant string) {
 	requireAvifenc(t)
 	original, out = filepath.Join(t.TempDir(), "wide.png"), t.TempDir()
 	writePNG(t, original, gradient(800, 400))
-	if _, err := GenerateVariants(original, out, 50, false); err != nil {
+	if _, err := GenerateVariants(original, out, testOptions); err != nil {
 		t.Fatal(err)
 	}
 	return original, out, filepath.Join(out, "wide-640.avif")
@@ -353,7 +354,7 @@ func TestGenerateVariantsSkipsWhenEveryVariantIsNewerThanTheOriginal(t *testing.
 	setModTime(t, original, -time.Hour)
 	replaceWithMarker(t, variant)
 
-	result, err := GenerateVariants(original, out, 50, false)
+	result, err := GenerateVariants(original, out, testOptions)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -375,7 +376,7 @@ func TestGenerateVariantsRegeneratesWhenTheOriginalIsNewer(t *testing.T) {
 	setModTime(t, variant, -time.Hour)
 	setModTime(t, original, 0)
 
-	result, err := GenerateVariants(original, out, 50, false)
+	result, err := GenerateVariants(original, out, testOptions)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -395,7 +396,7 @@ func TestGenerateVariantsRegeneratesWhenAVariantIsMissing(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	result, err := GenerateVariants(original, out, 50, false)
+	result, err := GenerateVariants(original, out, testOptions)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -413,7 +414,7 @@ func TestGenerateVariantsForceRegeneratesUpToDateVariants(t *testing.T) {
 	setModTime(t, original, -time.Hour)
 	replaceWithMarker(t, variant)
 
-	result, err := GenerateVariants(original, out, 50, true)
+	result, err := GenerateVariants(original, out, Options{Quality: 50, Speed: 6, Force: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -433,7 +434,7 @@ func TestGenerateVariantsChecksTheColorSpaceEvenWhenSkipping(t *testing.T) {
 	}
 	setModTime(t, original, -time.Hour)
 
-	if _, err := GenerateVariants(original, out, 50, false); err == nil {
+	if _, err := GenerateVariants(original, out, testOptions); err == nil {
 		t.Error("expected a Display P3 original to be refused even though its variants are up to date")
 	}
 }
@@ -473,5 +474,202 @@ func TestUpdateConfigsReportsUnknownImagesInNaturalOrder(t *testing.T) {
 
 	if !slices.Equal(unknown, []string{"x-2", "x-10"}) {
 		t.Errorf("unknown = %v, want [x-2 x-10]", unknown)
+	}
+}
+
+var testOptions = Options{Quality: 50, Speed: 6}
+
+func TestEncodeAVIFRejectsOptionsOutOfRange(t *testing.T) {
+	// avifenc silently accepts most out-of-range values, so they are checked here
+	tests := []struct {
+		name    string
+		options Options
+		want    string
+	}{
+		{"quality above 100", Options{Quality: 101, Speed: 6}, "quality"},
+		{"negative quality", Options{Quality: -1, Speed: 6}, "quality"},
+		{"speed above 10", Options{Quality: 50, Speed: 11}, "speed"},
+		{"negative speed", Options{Quality: 50, Speed: -1}, "speed"},
+		{"negative threads", Options{Quality: 50, Speed: 6, Threads: -3}, "threads"},
+		{"negative jobs", Options{Quality: 50, Speed: 6, Jobs: -2}, "jobs"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "out.avif")
+
+			err := EncodeAVIF(gradient(64, 48), path, tt.options)
+
+			if err == nil || !strings.Contains(err.Error(), tt.want) {
+				t.Errorf("EncodeAVIF = %v, want an error mentioning %q", err, tt.want)
+			}
+			if _, statErr := os.Stat(path); statErr == nil {
+				t.Error("an AVIF was written despite the invalid options")
+			}
+		})
+	}
+}
+
+func TestEncodeAVIFAcceptsTheLimitsOfEachOption(t *testing.T) {
+	requireAvifenc(t)
+	for _, options := range []Options{
+		{Quality: 0, Speed: 10, Threads: 1},
+		{Quality: 100, Speed: 0, Threads: 2},
+	} {
+		path := filepath.Join(t.TempDir(), "out.avif")
+		if err := EncodeAVIF(gradient(32, 32), path, options); err != nil {
+			t.Errorf("EncodeAVIF(%+v) returned %v", options, err)
+		}
+	}
+}
+
+func TestEncodeAVIFAppliesSpeed(t *testing.T) {
+	requireAvifenc(t)
+	dir := t.TempDir()
+	img := gradient(512, 512)
+
+	if err := EncodeAVIF(img, filepath.Join(dir, "slow.avif"), Options{Quality: 50, Speed: 0}); err != nil {
+		t.Fatal(err)
+	}
+	if err := EncodeAVIF(img, filepath.Join(dir, "fast.avif"), Options{Quality: 50, Speed: 10}); err != nil {
+		t.Fatal(err)
+	}
+
+	slow, _ := os.ReadFile(filepath.Join(dir, "slow.avif"))
+	fast, _ := os.ReadFile(filepath.Join(dir, "fast.avif"))
+	if bytes.Equal(slow, fast) {
+		t.Error("speed 0 and speed 10 produced identical files, so the speed option is not being applied")
+	}
+}
+
+// writeOriginals writes small PNG originals into a new directory and returns
+// their paths in order.
+func writeOriginals(t *testing.T, sizes map[string][2]int, order []string) (string, []string) {
+	t.Helper()
+	dir := t.TempDir()
+	var paths []string
+	for _, name := range order {
+		path := filepath.Join(dir, name+".png")
+		writePNG(t, path, gradient(sizes[name][0], sizes[name][1]))
+		paths = append(paths, path)
+	}
+	return dir, paths
+}
+
+func TestGenerateAllGeneratesEveryOriginalAndKeepsInputOrder(t *testing.T) {
+	requireAvifenc(t)
+	sizes := map[string][2]int{"a": {800, 400}, "b": {300, 600}, "c": {700, 700}, "d": {900, 300}, "e": {650, 650}}
+	order := []string{"a", "b", "c", "d", "e"}
+	_, paths := writeOriginals(t, sizes, order)
+	out := t.TempDir()
+
+	results, err := GenerateAll(paths, out, Options{Quality: 50, Speed: 6, Jobs: 3}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(results) != len(order) {
+		t.Fatalf("got %d results, want %d", len(results), len(order))
+	}
+	for i, name := range order {
+		if results[i].Name != name {
+			t.Errorf("results[%d].Name = %q, want %q, results must follow the input order", i, results[i].Name, name)
+		}
+		want := Dimensions{Width: sizes[name][0], Height: sizes[name][1]}
+		if results[i].Dimensions != want || !results[i].Generated {
+			t.Errorf("results[%d] = %+v, want dimensions %+v and Generated", i, results[i], want)
+		}
+	}
+	if got := len(fileNames(t, out)); got != 9 {
+		t.Errorf("generated %d files, want 9 (a: 640 and 800, b: 300, c: 640 and 700, d: 640 and 900, e: 640 and 650)", got)
+	}
+}
+
+func TestGenerateAllReportsEachResultOnceWithoutOverlapping(t *testing.T) {
+	requireAvifenc(t)
+	order := []string{"a", "b", "c", "d", "e", "f"}
+	sizes := map[string][2]int{}
+	for _, name := range order {
+		sizes[name] = [2]int{200, 100}
+	}
+	_, paths := writeOriginals(t, sizes, order)
+
+	// the callback deliberately uses plain, unsynchronised state: under -race any
+	// overlapping calls would be reported
+	reported := map[string]int{}
+	var calls int
+	_, err := GenerateAll(paths, t.TempDir(), Options{Quality: 50, Speed: 6, Jobs: 4}, func(result Result) {
+		reported[result.Name]++
+		calls++
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if calls != len(order) {
+		t.Errorf("callback ran %d times, want %d", calls, len(order))
+	}
+	for _, name := range order {
+		if reported[name] != 1 {
+			t.Errorf("%s reported %d times, want once", name, reported[name])
+		}
+	}
+}
+
+func TestGenerateAllTreatsZeroJobsAsOne(t *testing.T) {
+	requireAvifenc(t)
+	_, paths := writeOriginals(t, map[string][2]int{"a": {200, 100}}, []string{"a"})
+
+	results, err := GenerateAll(paths, t.TempDir(), Options{Quality: 50, Speed: 6, Jobs: 0}, nil)
+
+	if err != nil || len(results) != 1 || !results[0].Generated {
+		t.Errorf("GenerateAll with Jobs 0 = %+v, %v; want one generated result", results, err)
+	}
+}
+
+func TestGenerateAllStopsAfterAFailureAndNamesTheFile(t *testing.T) {
+	requireAvifenc(t)
+	dir, paths := writeOriginals(t, map[string][2]int{"a": {200, 100}, "c": {200, 100}, "d": {200, 100}}, []string{"a", "c", "d"})
+	broken := filepath.Join(dir, "b.png")
+	if err := os.WriteFile(broken, []byte("not a png"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	paths = []string{paths[0], broken, paths[1], paths[2]}
+	out := t.TempDir()
+
+	// one job makes the order deterministic: a, then the broken b, then nothing
+	_, err := GenerateAll(paths, out, Options{Quality: 50, Speed: 6, Jobs: 1}, nil)
+
+	if err == nil || !strings.Contains(err.Error(), "b.png") {
+		t.Fatalf("error = %v, want one naming b.png", err)
+	}
+	for _, name := range fileNames(t, out) {
+		if strings.HasPrefix(name, "c-") || strings.HasPrefix(name, "d-") {
+			t.Errorf("%s was generated after the failure, remaining work should be skipped", name)
+		}
+	}
+}
+
+func TestGenerateAllSkipsUpToDateOriginals(t *testing.T) {
+	requireAvifenc(t)
+	_, paths := writeOriginals(t, map[string][2]int{"a": {200, 100}, "b": {200, 100}}, []string{"a", "b"})
+	out := t.TempDir()
+	options := Options{Quality: 50, Speed: 6, Jobs: 2}
+	if _, err := GenerateAll(paths, out, options, nil); err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range paths {
+		setModTime(t, path, -time.Hour)
+	}
+
+	results, err := GenerateAll(paths, out, options, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, result := range results {
+		if result.Generated {
+			t.Errorf("%s was regenerated although its variants were up to date", result.Name)
+		}
 	}
 }
