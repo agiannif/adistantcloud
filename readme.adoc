@@ -47,7 +47,7 @@ The site serves each photograph as AVIF variants at several widths. Galleries an
 
 . Export each photograph from Lightroom as an 8-bit sRGB PNG with a long edge of 2560 px, no output sharpening and no location metadata. Name the file after the photograph, `larch-1.png`, and put it in `originals/`. `make photos` refuses PNGs that declare another color space, such as Display P3, because the pipeline does not carry color profiles through.
 . Run `make photos`. It writes the AVIF variants to `assets/images/` and records each original's dimensions in the configs in `configs/`.
-. Set the AVIF quality, 50 by default, with `make photos AVIF_QUALITY=80`, and the source directory with `ORIGINALS_DIR`.
+. Set the AVIF quality, 70 by default, with `make photos AVIF_QUALITY=80`, and the source directory with `ORIGINALS_DIR`.
 
 `make photos` only generates photographs that are new or whose original is newer than their variants, so adding or re-exporting a few photos is quick. It processes several photographs at once, one per CPU core by default, which you can change with `JOBS`. `AVIF_SPEED` (0 to 10, 6 by default) trades encoding time for compression: higher is faster and produces slightly larger files.
 

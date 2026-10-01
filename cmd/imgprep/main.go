@@ -15,7 +15,7 @@ func main() {
 	originals := flag.String("originals", "originals", "directory of PNG originals")
 	output := flag.String("output", "assets/images", "directory the AVIF variants are written to")
 	configs := flag.String("configs", "configs", "directory of gallery and home configs to record dimensions in")
-	quality := flag.Int("quality", 50, "AVIF quality from 0 to 100, where 100 is lossless")
+	quality := flag.Int("quality", 70, "AVIF quality from 0 to 100, where 100 is lossless")
 	speed := flag.Int("speed", 6, "avifenc encoder speed from 0, the slowest and best compressing, to 10")
 	jobs := flag.Int("jobs", runtime.NumCPU(), "number of photos to process at once")
 	force := flag.Bool("force", false, "regenerate variants even when they are newer than their original")

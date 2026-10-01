@@ -13,10 +13,10 @@ gen: ## Generate templ, tailwind, and hashed asset files
 # AVIF_QUALITY or AVIF_SPEED. JOBS is how many photos are processed at once and
 # defaults to the number of cores.
 ORIGINALS_DIR ?= originals
-AVIF_QUALITY ?= 50
+AVIF_QUALITY ?= 70
 AVIF_SPEED ?= 6
 
-photos: ## Generate AVIF variants of photos (ORIGINALS_DIR, AVIF_QUALITY=50, AVIF_SPEED=6, JOBS, FORCE=1)
+photos: ## Generate AVIF variants of photos (ORIGINALS_DIR, AVIF_QUALITY=70, AVIF_SPEED=6, JOBS, FORCE=1)
 	go run ./cmd/imgprep -originals $(ORIGINALS_DIR) -quality $(AVIF_QUALITY) -speed $(AVIF_SPEED) $(if $(JOBS),-jobs $(JOBS)) $(if $(FORCE),-force)
 
 gen-tailwindcss: ## Generate normal tailwind output for debugging
