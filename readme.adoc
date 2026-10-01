@@ -10,3 +10,43 @@ The website currently features some of my photography. I have plans to add other
 blog posts about projects I'm working on.
 
 If you notice a bug or have an idea for how the site could provide a better experience, feel free to raise an issue.
+
+== Development
+
+=== Dependencies
+
+[cols="1,3"]
+|===
+| Tool | Used for
+
+| https://go.dev/dl/[Go]
+| Building and running the server. The required version is in `go.mod`.
+
+| https://templ.guide/quick-start/installation[templ] CLI
+| Generating Go code from the `.templ` templates. Install the version that matches `go.mod`: `go install github.com/a-h/templ/cmd/templ@<version>`.
+
+| https://tailwindcss.com/blog/standalone-cli[Tailwind CSS] standalone CLI (v4)
+| Building the stylesheet, for example `brew install tailwindcss`.
+
+| https://github.com/AOMediaCodec/libavif[avifenc] (libavif)
+| Generating AVIF images with `make photos` only. Works on macOS, Linux and Windows: `brew install libavif`, `apt install libavif-bin`.
+
+| https://www.docker.com/[Docker]
+| Building and pushing the container image with `make image` and `make push` only.
+|===
+
+The server and the container need none of these at runtime: the container holds the compiled server and the generated static files. `golang.org/x/image` is a build-time dependency of `make photos` and is not compiled into the server.
+
+=== Make targets
+
+Run `make help` for the full list. `make run` regenerates templates, styles and hashed asset names before starting the server, and `make test` does the same before running the tests.
+
+=== Photos
+
+The site serves each photograph as AVIF variants at several widths. Galleries and the home page list photographs by name, for example `name = "larch-1"`, and record the width and height of the original.
+
+. Export each photograph from Lightroom as an 8-bit sRGB PNG with a long edge of 2560 px, no output sharpening and no location metadata. Name the file after the photograph, `larch-1.png`, and put it in `originals/`.
+. Run `make photos`. It writes the AVIF variants to `assets/images/` and records each original's dimensions in the configs in `configs/`.
+. Set the AVIF quality, 50 by default, with `make photos AVIF_QUALITY=40`, and the source directory with `ORIGINALS_DIR`.
+
+`make photos` regenerates every photograph in `originals/` and takes a few minutes for a full set.
