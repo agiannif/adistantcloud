@@ -9,7 +9,7 @@ import (
 
 // HomeConfig represents the home page configuration
 type HomeConfig struct {
-	HeroImages []string `toml:"hero_images"`
+	HeroImages []ImageConfig `toml:"hero_images"`
 }
 
 // ReadHomeConfig reads and parses the home page TOML config file
@@ -22,6 +22,12 @@ func ReadHomeConfig(path string) (*HomeConfig, error) {
 	_, err := toml.DecodeFile(path, &config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read home config: %w", err)
+	}
+
+	for _, image := range config.HeroImages {
+		if err := image.validate(); err != nil {
+			return nil, fmt.Errorf("invalid home config: %w", err)
+		}
 	}
 
 	return &config, nil

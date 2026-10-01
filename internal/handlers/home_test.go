@@ -12,7 +12,10 @@ import (
 func TestHomeHandler(t *testing.T) {
 	// Create home handler with test data
 	homeConfig := config.HomeConfig{
-		HeroImages: []string{"test1.jpg", "test2.jpg"},
+		HeroImages: []config.ImageConfig{
+			{Name: "test1", Width: 2560, Height: 1707},
+			{Name: "test2", Width: 2560, Height: 1707},
+		},
 	}
 
 	galleries := []config.GalleryMetadata{
@@ -39,7 +42,7 @@ func TestHomeHandler(t *testing.T) {
 
 	// Verify one of the hero images appears in response
 	body := w.Body.String()
-	hasImage := strings.Contains(body, "test1.jpg") || strings.Contains(body, "test2.jpg")
+	hasImage := strings.Contains(body, "/assets/images/test1-2000.avif") || strings.Contains(body, "/assets/images/test2-2000.avif")
 	if !hasImage {
 		t.Error("Expected response to contain one of the hero images")
 	}

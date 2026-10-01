@@ -41,7 +41,7 @@ func TestPageReferencesHashedAssets(t *testing.T) {
 	})
 
 	var page bytes.Buffer
-	if err := Home("", nil).Render(context.Background(), &page); err != nil {
+	if err := Home(nil, nil).Render(context.Background(), &page); err != nil {
 		t.Fatal(err)
 	}
 

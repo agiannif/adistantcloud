@@ -17,9 +17,9 @@ type Home struct {
 // HomeHandler renders the home page with a random hero image
 func (h *Home) HomeHandler(w http.ResponseWriter, r *http.Request) {
 	// Select random hero image
-	var selectedHero string
+	var selectedHero *config.ImageConfig
 	if len(h.HomeConfig.HeroImages) > 0 {
-		selectedHero = h.HomeConfig.HeroImages[rand.IntN(len(h.HomeConfig.HeroImages))]
+		selectedHero = &h.HomeConfig.HeroImages[rand.IntN(len(h.HomeConfig.HeroImages))]
 	}
 
 	// Render template

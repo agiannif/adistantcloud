@@ -56,7 +56,7 @@ func main() {
 	homeConfig, err := config.ReadHomeConfig("./configs/home.toml")
 	if err != nil {
 		slog.Warn("could not read home config", "error", err)
-		homeConfig = &config.HomeConfig{HeroImages: []string{}}
+		homeConfig = &config.HomeConfig{HeroImages: []config.ImageConfig{}}
 	}
 
 	// Asset manifest is optional - without it pages reference unversioned static files

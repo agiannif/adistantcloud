@@ -3,6 +3,8 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
 	"testing"
 )
 
@@ -19,16 +21,22 @@ short_name = "test"
 [[rows]]
 layout = "full"
 [[rows.images]]
-file = "test1.jpg"
+name = "test1"
+width = 2560
+height = 1707
 alt = "Test image 1"
 
 [[rows]]
 layout = "half"
 [[rows.images]]
-file = "test2.jpg"
+name = "test2"
+width = 2560
+height = 1707
 alt = "Test image 2"
 [[rows.images]]
-file = "test3.jpg"
+name = "test3"
+width = 2560
+height = 1707
 alt = "Test image 3"
 `
 		if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
@@ -69,6 +77,77 @@ alt = "Test image 3"
 		}
 	})
 
+	t.Run("reads image name, alt text and dimensions", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "test-gallery.toml")
+
+		configContent := `
+[[rows]]
+layout = "full"
+[[rows.images]]
+name = "test1"
+alt = "Test image 1"
+width = 2560
+height = 1707
+`
+		if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		config, err := ReadGalleryConfig(configPath)
+		if err != nil {
+			t.Fatalf("ReadGalleryConfig() error = %v", err)
+		}
+
+		want := ImageConfig{Name: "test1", Alt: "Test image 1", Width: 2560, Height: 1707}
+		if got := config.Rows[0].Images[0]; got != want {
+			t.Errorf("Rows[0].Images[0] = %+v, want %+v", got, want)
+		}
+	})
+
+	t.Run("returns error naming an image without dimensions", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "test-gallery.toml")
+
+		configContent := `
+[[rows]]
+layout = "full"
+[[rows.images]]
+name = "no-dimensions"
+`
+		if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		_, err := ReadGalleryConfig(configPath)
+		if err == nil {
+			t.Fatal("ReadGalleryConfig() expected error for image without dimensions, got nil")
+		}
+		if !strings.Contains(err.Error(), "no-dimensions") {
+			t.Errorf("error %q should name the image", err)
+		}
+	})
+
+	t.Run("returns error for an image without a name", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "test-gallery.toml")
+
+		configContent := `
+[[rows]]
+layout = "full"
+[[rows.images]]
+width = 2560
+height = 1707
+`
+		if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		if _, err := ReadGalleryConfig(configPath); err == nil {
+			t.Error("ReadGalleryConfig() expected error for image without a name, got nil")
+		}
+	})
+
 	t.Run("returns error for non-existent file", func(t *testing.T) {
 		_, err := ReadGalleryConfig("/nonexistent/path/config.toml")
 		if err == nil {
@@ -104,7 +183,9 @@ short_name = "one"
 [[rows]]
 layout = "full"
 [[rows.images]]
-file = "img1.jpg"
+name = "img1"
+width = 2560
+height = 1707
 alt = "Image 1"
 `
 
@@ -116,10 +197,14 @@ short_name = "two"
 [[rows]]
 layout = "half"
 [[rows.images]]
-file = "img2.jpg"
+name = "img2"
+width = 2560
+height = 1707
 alt = "Image 2"
 [[rows.images]]
-file = "img3.jpg"
+name = "img3"
+width = 2560
+height = 1707
 alt = "Image 3"
 `
 
@@ -168,7 +253,9 @@ short_name = "gallery"
 [[rows]]
 layout = "full"
 [[rows.images]]
-file = "img.jpg"
+name = "img"
+width = 2560
+height = 1707
 alt = "Image"
 `
 
@@ -200,4 +287,35 @@ alt = "Image"
 			t.Error("ReadGalleryConfigsIn() expected error for non-existent directory, got nil")
 		}
 	})
+}
+
+func TestGalleryConfigFiles(t *testing.T) {
+	tmpDir := t.TempDir()
+	for _, name := range []string{"land-gallery.toml", "street-gallery.toml", "home.toml", "server.toml"} {
+		if err := os.WriteFile(filepath.Join(tmpDir, name), nil, 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.Mkdir(filepath.Join(tmpDir, "old-gallery"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := GalleryConfigFiles(tmpDir)
+	if err != nil {
+		t.Fatalf("GalleryConfigFiles() error = %v", err)
+	}
+
+	want := []string{
+		filepath.Join(tmpDir, "land-gallery.toml"),
+		filepath.Join(tmpDir, "street-gallery.toml"),
+	}
+	if !slices.Equal(got, want) {
+		t.Errorf("GalleryConfigFiles() = %v, want %v", got, want)
+	}
+}
+
+func TestGalleryConfigFilesErrorsForMissingDirectory(t *testing.T) {
+	if _, err := GalleryConfigFiles("/nonexistent/directory"); err == nil {
+		t.Error("GalleryConfigFiles() expected error for non-existent directory, got nil")
+	}
 }
