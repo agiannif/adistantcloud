@@ -93,6 +93,11 @@ func TestGalleryRendersResponsiveImages(t *testing.T) {
 			t.Errorf("rendered gallery does not contain %s", want)
 		}
 	}
+
+	// every thumbnail and every fullscreen image is decoded off the main thread
+	if got := strings.Count(html, `decoding="async"`); got != 4 {
+		t.Errorf(`rendered gallery has %d images with decoding="async", want 4`, got)
+	}
 }
 
 func TestHomeRendersResponsiveHeroImage(t *testing.T) {
@@ -108,10 +113,17 @@ func TestHomeRendersResponsiveHeroImage(t *testing.T) {
 		`srcset="/assets/images/bay-1-640.avif 640w, /assets/images/bay-1-1280.avif 1280w, /assets/images/bay-1-2000.avif 2000w"`,
 		`sizes="(min-width: 80rem) 1232px, calc(100vw - 3rem)"`,
 		`src="/assets/images/bay-1-2000.avif"`,
+		// the hero is the largest thing on screen, so fetch it ahead of everything else
+		`fetchpriority="high"`,
 	} {
 		if !strings.Contains(html, want) {
 			t.Errorf("rendered home page does not contain %s", want)
 		}
+	}
+
+	// the hero is painted as soon as it arrives rather than decoded asynchronously
+	if strings.Contains(html, "decoding=") {
+		t.Error("the hero image should not set a decoding hint")
 	}
 }
 

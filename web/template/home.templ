@@ -16,6 +16,7 @@ templ Home(hero *config.ImageConfig, galleries []config.GalleryMetadata) {
 							src={ largestImageURL(*hero) }
 							srcset={ imageSrcset(*hero) }
 							sizes={ heroImageSizes }
+							fetchpriority="high"
 							@load="$el.style.opacity=1"
 							alt="A photograph from a distant cloud"
 							class="w-full h-full object-cover transition duration-300 opacity-0"

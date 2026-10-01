@@ -233,6 +233,7 @@ templ imageRow(row config.RowConfig) {
 				class="transition duration-300 opacity-0 cursor-pointer"
 				x-intersect.once.margin.200px={ "$el.srcset = '" + srcset + "'" }
 				sizes={ sizes }
+				decoding="async"
 				alt={ image.Alt }
 				width={ strconv.Itoa(image.Width) }
 				height={ strconv.Itoa(image.Height) }
@@ -250,6 +251,7 @@ templ imageRow(row config.RowConfig) {
 						x-transition:leave.duration.400ms
 						class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-screen max-w-screen object-contain touch-none"
 						x-intersect.once={ "$el.src = '" + fullscreenSrc + "'" }
+						decoding="async"
 						alt={ image.Alt }
 						width={ strconv.Itoa(image.Width) }
 						height={ strconv.Itoa(image.Height) }
