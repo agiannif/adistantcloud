@@ -35,7 +35,7 @@ func (i ImageConfig) validate() error {
 		return fmt.Errorf("image has no name")
 	}
 	if i.Width <= 0 || i.Height <= 0 {
-		return fmt.Errorf("image %q has no width and height, run make images", i.Name)
+		return fmt.Errorf("image %q has no width and height, run make photos", i.Name)
 	}
 	return nil
 }

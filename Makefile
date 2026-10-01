@@ -1,4 +1,4 @@
-.PHONY: all gen build build-release build-release-amd run test clean bundle bundle-no-assets bundle-for-container image push help
+.PHONY: all gen photos build build-release build-release-amd run test clean bundle bundle-no-assets bundle-for-container image push help
 
 all: help
 
@@ -6,6 +6,14 @@ gen:
 	templ generate ./web/template
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.min.css --minify
 	go run ./cmd/assethash
+
+# generates AVIF variants of the PNGs in ORIGINALS_DIR and records their
+# dimensions in the gallery configs, requires avifenc (see readme.adoc)
+ORIGINALS_DIR ?= originals
+AVIF_QUALITY ?= 50
+
+photos:
+	go run ./cmd/imgprep -originals $(ORIGINALS_DIR) -quality $(AVIF_QUALITY)
 
 gen-tailwindcss:
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.css
@@ -57,6 +65,7 @@ help:
 	@echo "Targets:"
 	@echo "  all                  : help (default)"
 	@echo "  gen                  : generate templ, tailwind, and hashed asset files"
+	@echo "  photos               : generate AVIF variants from originals/ (ORIGINALS_DIR, AVIF_QUALITY=50)"
 	@echo "  gen-tailwindcss      : generate normal tailwind output for debugging"
 	@echo "  build                : compile the project"
 	@echo "  build-release        : compile without symbols"

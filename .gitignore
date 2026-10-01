@@ -3,6 +3,9 @@ configs/*
 assets/*
 web/static/fonts/*
 
+# Exported originals the image pipeline reads
+originals/
+
 # Private notes
 notes.md
 
