@@ -94,6 +94,14 @@ func TestGalleryRendersResponsiveImages(t *testing.T) {
 		}
 	}
 
+	// Cells fill their grid track. An image that has not loaded yet has no src, so
+	// it sizes itself from its width attribute; a cell that shrink-wraps it would
+	// be as wide as the original, overflow the page, and make lazy loading think
+	// the viewport is huge.
+	if got := strings.Count(html, "bg-ef-light-bg-dim w-full"); got != 2 {
+		t.Errorf("rendered gallery has %d image cells that fill their grid track, want 2", got)
+	}
+
 	// every thumbnail and every fullscreen image is decoded off the main thread
 	if got := strings.Count(html, `decoding="async"`); got != 4 {
 		t.Errorf(`rendered gallery has %d images with decoding="async", want 4`, got)

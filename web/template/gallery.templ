@@ -225,7 +225,7 @@ templ imageRow(row config.RowConfig) {
 				}
 			}"
 			@keyup.escape.window="closeFullscreen()"
-			class={ "md:col-span-" + gridConfigs[i].Span + " md:col-start-" + gridConfigs[i].Start + " col-span-79 col-start-1 bg-ef-light-bg-dim" }
+			class={ "md:col-span-" + gridConfigs[i].Span + " md:col-start-" + gridConfigs[i].Start + " col-span-79 col-start-1 bg-ef-light-bg-dim w-full" }
 		>
 			<img
 				@click="openFullscreen()"
