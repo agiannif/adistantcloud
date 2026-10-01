@@ -67,7 +67,7 @@ help:
 	@echo "Targets:"
 	@echo "  all                  : help (default)"
 	@echo "  gen                  : generate templ, tailwind, and hashed asset files"
-	@echo "  photos               : generate AVIF variants from originals/ (ORIGINALS_DIR, AVIF_QUALITY=50, FORCE=1)"
+	@echo "  photos               : generate AVIF variants of photos (ORIGINALS_DIR, AVIF_QUALITY=50, FORCE=1)"
 	@echo "  gen-tailwindcss      : generate normal tailwind output for debugging"
 	@echo "  build                : compile the project"
 	@echo "  build-release        : compile without symbols"
