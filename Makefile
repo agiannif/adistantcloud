@@ -49,11 +49,12 @@ clean: ## Remove build objects and caches
 	rm -f web/static/images/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].png
 	rm -f bundle.tgz
 
-# On macOS, tar stores extended attributes (the "Ignoring unknown extended header
-# keyword" warnings) and AppleDouble ._ files (stray ._name files) that a Linux host
-# does not want. COPYFILE_DISABLE stops the ._ files and --no-xattrs the attributes.
-# GNU tar understands --no-xattrs too, so this is safe to use on Linux.
-TAR := COPYFILE_DISABLE=1 tar --no-xattrs
+# On macOS, tar stores metadata that a Linux host does not want: extended attributes
+# and BSD file flags (the "Ignoring unknown extended header keyword" warnings) and
+# AppleDouble ._ files (stray ._name files). COPYFILE_DISABLE stops the ._ files,
+# --no-xattrs and --no-fflags the headers, and Finder's .DS_Store files are skipped.
+# These are bsdtar (macOS) options and do not work with GNU tar.
+TAR := COPYFILE_DISABLE=1 tar --no-xattrs --no-fflags --exclude .DS_Store
 
 bundle: clean build-release-amd ## Create a tgz archive for easy shipping
 	$(TAR) -czf bundle.tgz assets/ configs/ adistantcloud web/static/
