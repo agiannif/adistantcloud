@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	"golang.org/x/image/draw"
 
@@ -59,7 +60,8 @@ func EncodeAVIF(img image.Image, path string, quality int) error {
 	return nil
 }
 
-// OriginalPaths returns the PNG originals in dir, sorted by file name.
+// OriginalPaths returns the PNG originals in dir, in natural order so img-2 comes
+// before img-10.
 func OriginalPaths(dir string) ([]string, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -75,33 +77,75 @@ func OriginalPaths(dir string) ([]string, error) {
 	if len(paths) == 0 {
 		return nil, fmt.Errorf("no PNG originals found in %s", dir)
 	}
+	slices.SortFunc(paths, naturalCompare)
 	return paths, nil
 }
 
+// Result describes what GenerateVariants did for one original.
+type Result struct {
+	// Name is the image's name, taken from the original's file name.
+	Name string
+	// Dimensions are the dimensions of the original.
+	Dimensions Dimensions
+	// Generated is false when the variants were already up to date.
+	Generated bool
+}
+
 // GenerateVariants writes every AVIF variant of the original at path into
-// outputDir. It returns the image's name, taken from the file name, and the
-// dimensions of the original.
-func GenerateVariants(path, outputDir string, quality int) (string, Dimensions, error) {
-	original, err := decodePNG(path)
+// outputDir. Variants that exist and are newer than the original are left alone
+// unless force is set.
+func GenerateVariants(path, outputDir string, quality int, force bool) (Result, error) {
+	data, err := readOriginal(path)
 	if err != nil {
-		return "", Dimensions{}, err
+		return Result{}, err
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return Result{}, fmt.Errorf("failed to stat %s: %w", path, err)
+	}
+	header, err := png.DecodeConfig(bytes.NewReader(data))
+	if err != nil {
+		return Result{}, fmt.Errorf("failed to decode %s: %w", path, err)
 	}
 
-	bounds := original.Bounds()
 	name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
-	for _, width := range images.Widths(bounds.Dx()) {
+	result := Result{Name: name, Dimensions: Dimensions{Width: header.Width, Height: header.Height}}
+	widths := images.Widths(header.Width)
+	if !force && variantsUpToDate(info.ModTime(), outputDir, name, widths) {
+		return result, nil
+	}
+
+	original, err := png.Decode(bytes.NewReader(data))
+	if err != nil {
+		return Result{}, fmt.Errorf("failed to decode %s: %w", path, err)
+	}
+	for _, width := range widths {
 		variant := original
-		if width != bounds.Dx() {
+		if width != header.Width {
 			variant = Resize(original, width)
 		}
 		if err := EncodeAVIF(variant, filepath.Join(outputDir, images.Filename(name, width)), quality); err != nil {
-			return "", Dimensions{}, err
+			return Result{}, err
 		}
 	}
-	return name, Dimensions{Width: bounds.Dx(), Height: bounds.Dy()}, nil
+	result.Generated = true
+	return result, nil
 }
 
-func decodePNG(path string) (image.Image, error) {
+// variantsUpToDate reports whether every variant exists and is at least as new as
+// the original.
+func variantsUpToDate(originalModTime time.Time, outputDir, name string, widths []int) bool {
+	for _, width := range widths {
+		info, err := os.Stat(filepath.Join(outputDir, images.Filename(name, width)))
+		if err != nil || info.ModTime().Before(originalModTime) {
+			return false
+		}
+	}
+	return true
+}
+
+// readOriginal reads a PNG original and refuses it unless it is sRGB.
+func readOriginal(path string) ([]byte, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read %s: %w", path, err)
@@ -109,12 +153,7 @@ func decodePNG(path string) (image.Image, error) {
 	if err := checkSRGB(data); err != nil {
 		return nil, fmt.Errorf("%s is not sRGB (%w), export it with the sRGB color space", path, err)
 	}
-
-	img, err := png.Decode(bytes.NewReader(data))
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode %s: %w", path, err)
-	}
-	return img, nil
+	return data, nil
 }
 
 // UpdateConfigs records dimensions in the gallery configs and the home config in
@@ -147,7 +186,7 @@ func UpdateConfigs(configsDir string, dims map[string]Dimensions) ([]string, err
 		}
 	}
 
-	slices.Sort(unknown)
+	slices.SortFunc(unknown, naturalCompare)
 	return slices.Compact(unknown), nil
 }
 

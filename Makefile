@@ -7,13 +7,15 @@ gen:
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.min.css --minify
 	go run ./cmd/assethash
 
-# generates AVIF variants of the PNGs in ORIGINALS_DIR and records their
-# dimensions in the gallery configs, requires avifenc (see readme.adoc)
+# generates AVIF variants of the PNGs in ORIGINALS_DIR that are new or changed and
+# records their dimensions in the gallery configs, requires avifenc (see
+# readme.adoc). Set FORCE=1 to regenerate everything, for example after changing
+# AVIF_QUALITY.
 ORIGINALS_DIR ?= originals
 AVIF_QUALITY ?= 50
 
 photos:
-	go run ./cmd/imgprep -originals $(ORIGINALS_DIR) -quality $(AVIF_QUALITY)
+	go run ./cmd/imgprep -originals $(ORIGINALS_DIR) -quality $(AVIF_QUALITY) $(if $(FORCE),-force)
 
 gen-tailwindcss:
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.css
@@ -65,7 +67,7 @@ help:
 	@echo "Targets:"
 	@echo "  all                  : help (default)"
 	@echo "  gen                  : generate templ, tailwind, and hashed asset files"
-	@echo "  photos               : generate AVIF variants from originals/ (ORIGINALS_DIR, AVIF_QUALITY=50)"
+	@echo "  photos               : generate AVIF variants from originals/ (ORIGINALS_DIR, AVIF_QUALITY=50, FORCE=1)"
 	@echo "  gen-tailwindcss      : generate normal tailwind output for debugging"
 	@echo "  build                : compile the project"
 	@echo "  build-release        : compile without symbols"

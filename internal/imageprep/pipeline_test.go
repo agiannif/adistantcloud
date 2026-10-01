@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 )
 
 func requireAvifenc(t *testing.T) {
@@ -175,16 +176,19 @@ func TestGenerateVariantsWritesEveryWidthAndReturnsDimensions(t *testing.T) {
 	path := filepath.Join(originals, "wide.png")
 	writePNG(t, path, gradient(800, 400))
 
-	name, dimensions, err := GenerateVariants(path, out, 50)
+	result, err := GenerateVariants(path, out, 50, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if name != "wide" {
-		t.Errorf("name = %q, want %q", name, "wide")
+	if result.Name != "wide" {
+		t.Errorf("name = %q, want %q", result.Name, "wide")
 	}
-	if dimensions != (Dimensions{Width: 800, Height: 400}) {
-		t.Errorf("dimensions = %+v, want 800x400", dimensions)
+	if result.Dimensions != (Dimensions{Width: 800, Height: 400}) {
+		t.Errorf("dimensions = %+v, want 800x400", result.Dimensions)
+	}
+	if !result.Generated {
+		t.Error("Generated = false, want true for a new original")
 	}
 	want := []string{"wide-640.avif", "wide-800.avif"}
 	if got := fileNames(t, out); !slices.Equal(got, want) {
@@ -198,7 +202,7 @@ func TestGenerateVariantsNeverUpscales(t *testing.T) {
 	path := filepath.Join(originals, "small.png")
 	writePNG(t, path, gradient(300, 600))
 
-	if _, _, err := GenerateVariants(path, out, 50); err != nil {
+	if _, err := GenerateVariants(path, out, 50, false); err != nil {
 		t.Fatal(err)
 	}
 
@@ -215,7 +219,7 @@ func TestGenerateVariantsErrorsNamingAnInvalidPNG(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, _, err := GenerateVariants(path, t.TempDir(), 50)
+	_, err := GenerateVariants(path, t.TempDir(), 50, false)
 
 	if err == nil || !strings.Contains(err.Error(), "broken.png") {
 		t.Errorf("error = %v, want one naming broken.png", err)
@@ -303,5 +307,171 @@ func TestUpdateConfigsWorksWithoutAHomeConfig(t *testing.T) {
 func TestUpdateConfigsErrorsForMissingDirectory(t *testing.T) {
 	if _, err := UpdateConfigs(filepath.Join(t.TempDir(), "missing"), nil); err == nil {
 		t.Error("expected an error for a missing config directory")
+	}
+}
+
+// generatedFixture generates variants for a fresh 800x400 original and returns
+// the original's path, the output directory and the path of one variant.
+func generatedFixture(t *testing.T) (original, out, variant string) {
+	t.Helper()
+	requireAvifenc(t)
+	original, out = filepath.Join(t.TempDir(), "wide.png"), t.TempDir()
+	writePNG(t, original, gradient(800, 400))
+	if _, err := GenerateVariants(original, out, 50, false); err != nil {
+		t.Fatal(err)
+	}
+	return original, out, filepath.Join(out, "wide-640.avif")
+}
+
+func setModTime(t *testing.T, path string, offset time.Duration) {
+	t.Helper()
+	when := time.Now().Add(offset)
+	if err := os.Chtimes(path, when, when); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func replaceWithMarker(t *testing.T, path string) {
+	t.Helper()
+	if err := os.WriteFile(path, []byte("marker"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	setModTime(t, path, 0)
+}
+
+func isMarker(t *testing.T, path string) bool {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(data) == "marker"
+}
+
+func TestGenerateVariantsSkipsWhenEveryVariantIsNewerThanTheOriginal(t *testing.T) {
+	original, out, variant := generatedFixture(t)
+	setModTime(t, original, -time.Hour)
+	replaceWithMarker(t, variant)
+
+	result, err := GenerateVariants(original, out, 50, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result.Generated {
+		t.Error("Generated = true, want false when the variants are up to date")
+	}
+	if !isMarker(t, variant) {
+		t.Error("an up to date variant was rewritten")
+	}
+	if result.Name != "wide" || result.Dimensions != (Dimensions{Width: 800, Height: 400}) {
+		t.Errorf("a skipped original must still report its name and dimensions, got %+v", result)
+	}
+}
+
+func TestGenerateVariantsRegeneratesWhenTheOriginalIsNewer(t *testing.T) {
+	original, out, variant := generatedFixture(t)
+	replaceWithMarker(t, variant)
+	setModTime(t, variant, -time.Hour)
+	setModTime(t, original, 0)
+
+	result, err := GenerateVariants(original, out, 50, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !result.Generated {
+		t.Error("Generated = false, want true when the original is newer")
+	}
+	if isMarker(t, variant) {
+		t.Error("a stale variant was not rewritten")
+	}
+}
+
+func TestGenerateVariantsRegeneratesWhenAVariantIsMissing(t *testing.T) {
+	original, out, variant := generatedFixture(t)
+	setModTime(t, original, -time.Hour)
+	if err := os.Remove(variant); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := GenerateVariants(original, out, 50, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !result.Generated {
+		t.Error("Generated = false, want true when a variant is missing")
+	}
+	if _, err := os.Stat(variant); err != nil {
+		t.Errorf("missing variant was not regenerated: %v", err)
+	}
+}
+
+func TestGenerateVariantsForceRegeneratesUpToDateVariants(t *testing.T) {
+	original, out, variant := generatedFixture(t)
+	setModTime(t, original, -time.Hour)
+	replaceWithMarker(t, variant)
+
+	result, err := GenerateVariants(original, out, 50, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !result.Generated {
+		t.Error("Generated = false, want true when forced")
+	}
+	if isMarker(t, variant) {
+		t.Error("a forced run did not rewrite the variant")
+	}
+}
+
+func TestGenerateVariantsChecksTheColorSpaceEvenWhenSkipping(t *testing.T) {
+	original, out, _ := generatedFixture(t)
+	if err := os.WriteFile(original, pngWithChunks(t, iccProfile("Display P3")), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	setModTime(t, original, -time.Hour)
+
+	if _, err := GenerateVariants(original, out, 50, false); err == nil {
+		t.Error("expected a Display P3 original to be refused even though its variants are up to date")
+	}
+}
+
+func TestOriginalPathsSortsNumbersNaturally(t *testing.T) {
+	dir := t.TempDir()
+	for _, name := range []string{"tokyo-10.png", "tokyo-2.png", "tokyo-1.png", "china-1.png", "tokyo-21.png"} {
+		writePNG(t, filepath.Join(dir, name), gradient(8, 8))
+	}
+
+	got, err := OriginalPaths(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var names []string
+	for _, path := range got {
+		names = append(names, filepath.Base(path))
+	}
+	want := []string{"china-1.png", "tokyo-1.png", "tokyo-2.png", "tokyo-10.png", "tokyo-21.png"}
+	if !slices.Equal(names, want) {
+		t.Errorf("OriginalPaths order = %v, want %v", names, want)
+	}
+}
+
+func TestUpdateConfigsReportsUnknownImagesInNaturalOrder(t *testing.T) {
+	dir := t.TempDir()
+	gallery := "[[rows.images]]\nname = \"x-10\"\n[[rows.images]]\nname = \"x-2\"\n"
+	if err := os.WriteFile(filepath.Join(dir, "a-gallery.toml"), []byte(gallery), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	unknown, err := UpdateConfigs(dir, map[string]Dimensions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !slices.Equal(unknown, []string{"x-2", "x-10"}) {
+		t.Errorf("unknown = %v, want [x-2 x-10]", unknown)
 	}
 }

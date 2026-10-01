@@ -49,4 +49,4 @@ The site serves each photograph as AVIF variants at several widths. Galleries an
 . Run `make photos`. It writes the AVIF variants to `assets/images/` and records each original's dimensions in the configs in `configs/`.
 . Set the AVIF quality, 50 by default, with `make photos AVIF_QUALITY=40`, and the source directory with `ORIGINALS_DIR`.
 
-`make photos` regenerates every photograph in `originals/` and takes a few minutes for a full set.
+`make photos` only generates photographs that are new or whose original is newer than their variants, so adding or re-exporting a few photos is quick. The quality is not tracked, so after changing `AVIF_QUALITY` run `make photos FORCE=1` to regenerate everything, which takes a few minutes for a full set.
