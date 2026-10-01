@@ -6,3 +6,5 @@ require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/a-h/templ v0.3.1020
 )
+
+require golang.org/x/image v0.46.0 // indirect
