@@ -1,6 +1,7 @@
 package imageprep
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"image"
@@ -101,13 +102,15 @@ func GenerateVariants(path, outputDir string, quality int) (string, Dimensions, 
 }
 
 func decodePNG(path string) (image.Image, error) {
-	file, err := os.Open(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open %s: %w", path, err)
+		return nil, fmt.Errorf("failed to read %s: %w", path, err)
 	}
-	defer file.Close()
+	if err := checkSRGB(data); err != nil {
+		return nil, fmt.Errorf("%s is not sRGB (%w), export it with the sRGB color space", path, err)
+	}
 
-	img, err := png.Decode(file)
+	img, err := png.Decode(bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode %s: %w", path, err)
 	}
