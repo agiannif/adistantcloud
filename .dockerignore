@@ -1,0 +1,19 @@
+# The image build only needs the Go sources and web/. Photos and configs are
+# deployed separately (make bundle-for-container), so keep them out of the build
+# context to avoid sending gigabytes to the Docker daemon.
+originals/
+assets/
+configs/
+
+.git
+.worktrees
+.claude
+docs/
+notes.md
+CLAUDE.local.md
+
+# local build output
+adistantcloud
+bundle.tgz
+.DS_Store
+**/.DS_Store
