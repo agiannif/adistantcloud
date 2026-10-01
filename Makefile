@@ -2,7 +2,7 @@
 
 all: help
 
-gen:
+gen: ## Generate templ, tailwind, and hashed asset files
 	templ generate ./web/template
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.min.css --minify
 	go run ./cmd/assethash
@@ -14,28 +14,28 @@ gen:
 ORIGINALS_DIR ?= originals
 AVIF_QUALITY ?= 50
 
-photos:
+photos: ## Generate AVIF variants of photos (ORIGINALS_DIR, AVIF_QUALITY=50, FORCE=1)
 	go run ./cmd/imgprep -originals $(ORIGINALS_DIR) -quality $(AVIF_QUALITY) $(if $(FORCE),-force)
 
-gen-tailwindcss:
+gen-tailwindcss: ## Generate normal tailwind output for debugging
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/style.css
 
-build: gen
+build: gen ## Compile the project
 	go build ./cmd/adistantcloud
 
-build-release: gen
+build-release: gen ## Compile without symbols
 	go build -ldflags "-s -w" ./cmd/adistantcloud/
 
-build-release-amd: gen
+build-release-amd: gen ## Compile for linux amd64
 	env GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" ./cmd/adistantcloud/
 
-run: gen
+run: gen ## Run the project
 	go run ./cmd/adistantcloud
 
-test: gen
+test: gen ## Run tests
 	go test ./...
 
-clean:
+clean: ## Remove build objects and caches
 	go clean
 	rm -f adistantcloud
 	rm -f web/template/*_templ.go
@@ -47,36 +47,20 @@ clean:
 	rm -f web/static/images/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].png
 	rm -f bundle.tgz
 
-bundle: clean build-release-amd
+bundle: clean build-release-amd ## Create a tgz archive for easy shipping
 	tar -czf bundle.tgz assets/ configs/ adistantcloud web/static/
 
-bundle-no-assets: clean build-release-amd
+bundle-no-assets: clean build-release-amd ## Create a tgz archive without assets
 	tar -czf bundle.tgz configs/ adistantcloud web/static/
 
-bundle-for-container:
+bundle-for-container: ## Create a tgz archive with only assets
 	tar -czf bundle.tgz assets/ configs/
 
-image: clean gen
+image: clean gen ## Build the docker image
 	docker build --platform=linux/amd64,linux/arm64 . -t agiannif/adistantcloud:latest
 
-push:
+push: ## Push image to docker
 	docker push agiannif/adistantcloud:latest
 
-help:
-	@echo "Usage: make [target]"
-	@echo "Targets:"
-	@echo "  all                  : help (default)"
-	@echo "  gen                  : generate templ, tailwind, and hashed asset files"
-	@echo "  photos               : generate AVIF variants of photos (ORIGINALS_DIR, AVIF_QUALITY=50, FORCE=1)"
-	@echo "  gen-tailwindcss      : generate normal tailwind output for debugging"
-	@echo "  build                : compile the project"
-	@echo "  build-release        : compile without symbols"
-	@echo "  build-release-amd    : compile for linux amd64"
-	@echo "  run                  : run the project"
-	@echo "  test                 : run tests"
-	@echo "  clean                : remove build objects and caches"
-	@echo "  bundle               : create a tgz archive for easy shipping"
-	@echo "  bundle-no-assets     : create a tgz archive without assets"
-	@echo "  bundle-for-container : create a tgz archive with only assets"
-	@echo "  image                : build the docker image"
-	@echo "  push                 : push image to docker"
+help: ## Show available commands
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-22s %s\n", $$1, $$2}'
